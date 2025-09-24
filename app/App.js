@@ -23,7 +23,10 @@ import PagerView from 'react-native-pager-view';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LabourAssign from "./components/Labour/LabourAssign";
-
+import Entry from "./components/BottomNavigation/Entry";
+import Views from "./components/BottomNavigation/Views";
+import Remarks from "./components/BottomNavigation/Remarks";
+import AntDesign from '@expo/vector-icons/AntDesign';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -59,6 +62,21 @@ function SwipeableTabNavigator({ navigation }) {
       name: "Labour",
       component: LabourAssign,
       icon: ({ size, color }) => <Feather name="users" size={size} color={color} />,
+    },
+    {
+      name: "Entry",
+      component: Entry,
+      icon: ({ size, color }) => <Ionicons name="log-in-outline" size={size} color={color} />,
+    },
+    {
+      name: "View",
+      component: Views,
+      icon: ({ size, color }) => <AntDesign name="history" size={size} color={color} />,
+    },
+    {
+      name: "Remarks",
+      component: Remarks,
+      icon: ({ size, color }) => <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
     },
   ];
 
@@ -319,7 +337,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {/* Login First */}
 
-          <Stack.Screen name="Login" component={LoginPage} />
+          {/* <Stack.Screen name="Login" component={LoginPage} /> */}
           
           <Stack.Screen name="MainTabs" component={MainTabs} />
         </Stack.Navigator>
