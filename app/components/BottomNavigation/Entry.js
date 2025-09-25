@@ -1,12 +1,254 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, Modal, ActivityIndicator } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  FlatList, 
+  Modal, 
+  ActivityIndicator, 
+  StyleSheet,
+  ScrollView,
+  RefreshControl 
+} from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
 
-const API = "http://103.118.158.127/api";
+// API Configuration
+const API_CONFIG = {
+  BASE_URL: "http://103.118.158.127/api",
+  TIMEOUT: 15000,
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000,
+};
+
+// Create axios instance with professional configuration
+const apiClient = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache',
+  },
+});
+
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] 🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('[API] Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor with retry logic
+apiClient.interceptors.response.use(
+  (response) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] ✅ API Response: ${response.status} ${response.config.url}`);
+    return response;
+  },
+  async (error) => {
+    const timestamp = new Date().toISOString();
+    console.error(`[${timestamp}] ❌ API Error:`, {
+      status: error.response?.status,
+      message: error.message,
+      url: error.config?.url,
+      data: error.response?.data,
+    });
+
+    // Retry logic for network errors
+    if (error.config && !error.config.__isRetryRequest) {
+      error.config.__isRetryRequest = true;
+      
+      if (error.code === 'ECONNABORTED' || error.message === 'Network Error') {
+        for (let i = 0; i < API_CONFIG.RETRY_ATTEMPTS; i++) {
+          try {
+            await new Promise(resolve => setTimeout(resolve, API_CONFIG.RETRY_DELAY * (i + 1)));
+            console.log(`[${timestamp}] 🔄 Retrying request (${i + 1}/${API_CONFIG.RETRY_ATTEMPTS})`);
+            return await apiClient.request(error.config);
+          } catch (retryError) {
+            if (i === API_CONFIG.RETRY_ATTEMPTS - 1) {
+              console.error(`[${timestamp}] 💥 All retry attempts failed`);
+            }
+          }
+        }
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// Error handler utility
+const handleApiError = (error, context = '') => {
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] Error in ${context}:`, {
+    message: error.message,
+    status: error.response?.status,
+    data: error.response?.data,
+    url: error.config?.url,
+  });
+
+  let userMessage = `Failed to ${context.toLowerCase()}`;
+  
+  switch (error.response?.status) {
+    case 400:
+      userMessage = error.response?.data?.message || 'Invalid request data';
+      break;
+    case 401:
+      userMessage = 'Authentication required';
+      break;
+    case 403:
+      userMessage = 'Access forbidden';
+      break;
+    case 404:
+      userMessage = 'Resource not found';
+      break;
+    case 422:
+      userMessage = 'Validation failed';
+      break;
+    case 429:
+      userMessage = 'Too many requests - please wait';
+      break;
+    case 500:
+      userMessage = 'Server error - please try again';
+      break;
+    case 502:
+    case 503:
+    case 504:
+      userMessage = 'Service unavailable - please try later';
+      break;
+    default:
+      if (error.code === 'ECONNABORTED') {
+        userMessage = 'Request timeout - check connection';
+      } else if (error.message === 'Network Error') {
+        userMessage = 'Network error - check connectivity';
+      }
+  }
+
+  return userMessage;
+};
+
 const Stack = createNativeStackNavigator();
+
+// ===============================
+// Enhanced Dropdown Components
+// ===============================
+const DropdownButton = ({ label, value, onPress, disabled, type }) => {
+  const getDisplayText = () => {
+    if (!value) return `Select ${label}`;
+    
+    switch (type) {
+      case 'company':
+        return value.company_name;
+      case 'project':
+        return value.project_name;
+      case 'site':
+        return value.site_name;
+      case 'workDesc':
+        return value.desc_name;
+      default:
+        return `Select ${label}`;
+    }
+  };
+
+  return (
+    <View style={styles.dropdownContainer}>
+      <Text style={styles.dropdownLabel}>{label}</Text>
+      <TouchableOpacity
+        disabled={disabled}
+        onPress={onPress}
+        style={[
+          styles.dropdownButton,
+          disabled ? styles.dropdownButtonDisabled : styles.dropdownButtonEnabled
+        ]}
+      >
+        <View style={styles.dropdownButtonContent}>
+          <Text style={[
+            styles.dropdownButtonText,
+            !value ? styles.dropdownPlaceholder : (disabled ? styles.dropdownDisabledText : styles.dropdownActiveText)
+          ]}>
+            {getDisplayText()}
+          </Text>
+          <Ionicons name="chevron-down" size={18} color="#888" />
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const DropdownModal = ({ visible, onClose, data, onSelect, title, keyProp, type }) => {
+  const getItemText = (item) => {
+    switch (type) {
+      case 'company':
+        return item.company_name;
+      case 'project':
+        return item.project_name;
+      case 'site':
+        return item.site_name;
+      case 'workDesc':
+        return item.desc_name;
+      default:
+        return 'Unknown';
+    }
+  };
+
+  return (
+    <Modal visible={visible} transparent>
+      <View style={styles.modalOverlay}>
+        <TouchableOpacity
+          style={styles.modalTouchable}
+          activeOpacity={1}
+          onPress={onClose}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {}}
+            style={styles.modalContent}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{title}</Text>
+            </View>
+
+            <FlatList
+              data={data}
+              keyExtractor={(item) => String(item[keyProp])}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    onSelect(item);
+                    onClose();
+                  }}
+                  style={styles.modalItem}
+                >
+                  <Text style={styles.modalItemText}>
+                    {getItemText(item)}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={true}
+              style={styles.modalList}
+            />
+
+            <TouchableOpacity
+              onPress={onClose}
+              style={styles.modalCancelButton}
+            >
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+};
 
 // ===============================
 // Inline ModuleCard
@@ -14,84 +256,30 @@ const Stack = createNativeStackNavigator();
 const ModuleCard = ({ title, iconName, color = "#1e7a6f", onPress }) => (
   <TouchableOpacity
     onPress={onPress}
-    style={{
-      width: "48%", // 2 per row
-      marginBottom: 20,
-      borderRadius: 10,
-      backgroundColor: "#f8fafc",
-      shadowColor: "#1e293b",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 6,
-      elevation: 4,
-      borderWidth: 1,
-      borderColor: "#e2e8f0",
-      overflow: "hidden",
-    }}
+    style={styles.moduleCard}
   >
     {/* Header */}
-    <View
-      style={{
-        height: 40,
-        borderBottomWidth: 1,
-        borderColor: "#ccc",
-        justifyContent: "center",
-        backgroundColor: "#fff",
-      }}
-    >
-      <Text
-        style={{
-          fontWeight: "600",
-          textAlign: "center",
-          color: "#1f2937",
-          fontSize: 12,
-          letterSpacing: 0.5,
-          textTransform: "uppercase",
-        }}
-      >
+    <View style={styles.moduleCardHeader}>
+      <Text style={styles.moduleCardTitle}>
         {title}
       </Text>
     </View>
 
     {/* Icon */}
-    <View
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 20,
-        backgroundColor: "white",
-      }}
-    >
+    <View style={styles.moduleCardIconContainer}>
       <Ionicons name={iconName} size={36} color={color} />
     </View>
 
     {/* Footer Button */}
-    <View style={{ padding: 10 }}>
-      <View
-        style={{
-          paddingVertical: 8,
-          borderRadius: 8,
-          borderWidth: 1,
-          borderColor: color,
-          alignItems: "center",
-          flexDirection: "row",
-          justifyContent: "center",
-        }}
-      >
+    <View style={styles.moduleCardFooter}>
+      <View style={[styles.moduleCardButton, { borderColor: color }]}>
         <Ionicons
           name="arrow-forward-circle-outline"
           size={16}
           color={color}
           style={{ marginRight: 6 }}
         />
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: "600",
-            textAlign: "center",
-            color,
-          }}
-        >
+        <Text style={[styles.moduleCardButtonText, { color }]}>
           Open
         </Text>
       </View>
@@ -105,182 +293,276 @@ const ModuleCard = ({ title, iconName, color = "#1e7a6f", onPress }) => (
 function EntryDropdownScreen() {
   const navigation = useNavigation();
 
-  const [companies, setCompanies] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [sites, setSites] = useState([]);
-  const [workDescs, setWorkDescs] = useState([]);
+  // State management
+  const [state, setState] = useState({
+    companies: [],
+    projects: [],
+    sites: [],
+    workDescs: [],
+    selectedCompany: null,
+    selectedProject: null,
+    selectedSite: null,
+    loading: false,
+    refreshing: false,
+    // Modal visibility states
+    companyModalVisible: false,
+    projectModalVisible: false,
+    siteModalVisible: false,
+    workDescModalVisible: false,
+  });
 
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedSite, setSelectedSite] = useState(null);
+  // State update helper
+  const updateState = useCallback((updates) => {
+    setState(prevState => ({ ...prevState, ...updates }));
+  }, []);
 
-  const [loading, setLoading] = useState(false);
+  // API service functions
+  const apiService = {
+    async fetchCompanies() {
+      const response = await apiClient.get('/project/companies');
+      return response.data || [];
+    },
 
-  // modal states
-  const [companyModal, setCompanyModal] = useState(false);
-  const [projectModal, setProjectModal] = useState(false);
-  const [siteModal, setSiteModal] = useState(false);
-  const [workDescModal, setWorkDescModal] = useState(false);
+    async fetchProjects() {
+      const response = await apiClient.get('/project/projects-with-sites');
+      return response.data || [];
+    },
 
-  // fetch companies
+    async fetchWorkDescriptions(siteId) {
+      const response = await apiClient.get(`/material/work-descriptions?site_id=${siteId}`);
+      return response.data?.data || response.data || [];
+    },
+  };
+
+  // Fetch companies on component mount
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        setLoading(true);
-        const res = await axios.get(`${API}/project/companies`);
-        setCompanies(res.data || []);
-      } catch (err) {
-        console.log("Error fetching companies:", err.message);
+        updateState({ loading: true });
+        const companies = await apiService.fetchCompanies();
+        console.log('Companies fetched:', companies);
+        updateState({ companies });
+      } catch (error) {
+        const message = handleApiError(error, 'fetch companies');
+        console.error(message);
       } finally {
-        setLoading(false);
+        updateState({ loading: false });
       }
     };
-    fetchCompanies();
-  }, []);
 
-  // fetch projects when company changes
+    fetchCompanies();
+  }, [updateState]);
+
+  // Update projects when company changes
   useEffect(() => {
-    if (selectedCompany) {
+    if (state.selectedCompany) {
       const fetchProjects = async () => {
         try {
-          setLoading(true);
-          const res = await axios.get(`${API}/project/projects-with-sites`);
-          const filtered = res.data.filter(p => p.company_id === selectedCompany.company_id);
-          setProjects(filtered);
-          setSelectedProject(null);
-          setSites([]);
-        } catch (err) {
-          console.log("Error fetching projects:", err.message);
+          updateState({ loading: true });
+          const allProjects = await apiService.fetchProjects();
+          const filteredProjects = allProjects.filter(project => project.company_id === state.selectedCompany.company_id);
+          console.log('Filtered projects:', filteredProjects);
+          updateState({ 
+            projects: filteredProjects,
+            selectedProject: null,
+            sites: [],
+            selectedSite: null,
+            workDescs: [],
+          });
+        } catch (error) {
+          const message = handleApiError(error, 'fetch projects');
+          console.error(message);
         } finally {
-          setLoading(false);
+          updateState({ loading: false });
         }
       };
+
       fetchProjects();
+    } else {
+      updateState({
+        projects: [],
+        selectedProject: null,
+        sites: [],
+        selectedSite: null,
+        workDescs: [],
+      });
     }
-  }, [selectedCompany]);
+  }, [state.selectedCompany, updateState]);
 
-  // set sites from project
+  // Update sites when project changes
   useEffect(() => {
-    if (selectedProject) {
-      setSites(selectedProject.sites || []);
-      setSelectedSite(null);
-      setWorkDescs([]);
+    if (state.selectedProject) {
+      const selectedProjectData = state.projects.find(
+        project => project.project_id === state.selectedProject.project_id
+      );
+      
+      console.log('Selected project sites:', selectedProjectData?.sites);
+      updateState({
+        sites: selectedProjectData?.sites || [],
+        selectedSite: null,
+        workDescs: [],
+      });
     }
-  }, [selectedProject]);
+  }, [state.selectedProject, state.projects, updateState]);
 
-  // fetch work descriptions
+  // Fetch work descriptions when site is selected
   useEffect(() => {
-    if (selectedSite) {
+    if (state.selectedSite) {
       const fetchWorkDescs = async () => {
         try {
-          setLoading(true);
-          const res = await axios.get(`${API}/material/work-descriptions`, {
-            params: { site_id: selectedSite.site_id },
-          });
-          setWorkDescs(res.data.data || []);
-        } catch (err) {
-          console.log("Error fetching work descs:", err.message);
+          updateState({ loading: true });
+          const workDescs = await apiService.fetchWorkDescriptions(state.selectedSite.site_id);
+          console.log('Work descriptions:', workDescs);
+          updateState({ workDescs });
+        } catch (error) {
+          const message = handleApiError(error, 'fetch work descriptions');
+          console.error(message);
         } finally {
-          setLoading(false);
+          updateState({ loading: false });
         }
       };
+
       fetchWorkDescs();
     }
-  }, [selectedSite]);
+  }, [state.selectedSite, updateState]);
 
-  // Reusable DropdownButton
-  const DropdownButton = ({ label, value, onPress, disabled }) => (
-    <View style={{ marginBottom: 10 }}>
-      <Text style={{ fontWeight: "600", fontSize: 12 }}>{label}</Text>
-      <TouchableOpacity
-        onPress={onPress}
-        disabled={disabled}
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: 10,
-          borderWidth: 1,
-          borderColor: "#ccc",
-          borderRadius: 6,
-          backgroundColor: disabled ? "#f1f1f1" : "#fff",
-        }}
-      >
-        <Text>
-          {value
-            ? value.company_name || value.project_name || value.site_name
-            : `Select ${label}`}
-        </Text>
-        <Ionicons name="chevron-down" size={18} color="#666" />
-      </TouchableOpacity>
-    </View>
-  );
-
-  const DropdownModal = ({ visible, onClose, data, onSelect, displayField }) => (
-    <Modal visible={visible} transparent animationType="fade">
-      <TouchableOpacity
-        style={{ flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,.5)", padding: 20 }}
-        activeOpacity={1}
-        onPressOut={onClose}
-      >
-        <View style={{ backgroundColor: "#fff", borderRadius: 10, maxHeight: "70%", padding: 16 }}>
-          <FlatList
-            data={data}
-            keyExtractor={(item, i) => i.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  onSelect(item);
-                  onClose();
-                }}
-                style={{ paddingVertical: 12, borderBottomWidth: 1, borderColor: "#eee" }}
-              >
-                <Text>{item[displayField]}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
+  // Refresh handler
+  const handleRefresh = useCallback(async () => {
+    try {
+      updateState({ refreshing: true });
+      const companies = await apiService.fetchCompanies();
+      updateState({ companies });
+    } catch (error) {
+      const message = handleApiError(error, 'refresh data');
+      console.error(message);
+    } finally {
+      updateState({ refreshing: false });
+    }
+  }, [updateState]);
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: "#f9fafb" }}>
-      <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}>Unified Entry</Text>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={state.refreshing} onRefresh={handleRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Work Selection</Text>
+          <Text style={styles.subtitle}>Choose your project details</Text>
+        </View>
 
-      <DropdownButton label="Company" value={selectedCompany} onPress={() => setCompanyModal(true)} />
-      <DropdownButton label="Project" value={selectedProject} onPress={() => setProjectModal(true)} disabled={!selectedCompany} />
-      <DropdownButton label="Site" value={selectedSite} onPress={() => setSiteModal(true)} disabled={!selectedProject} />
+        <View style={styles.dropdownSection}>
+          <DropdownButton
+            label="Company"
+            value={state.selectedCompany}
+            onPress={() => updateState({ companyModalVisible: true })}
+            disabled={false}
+            type="company"
+          />
 
-      {/* Work Description - navigate directly on select */}
-      <DropdownButton
-        label="Work Description"
-        value={null}
-        onPress={() => setWorkDescModal(true)}
-        disabled={!selectedSite}
+          <DropdownButton
+            label="Project"
+            value={state.selectedProject}
+            onPress={() => updateState({ projectModalVisible: true })}
+            disabled={!state.selectedCompany}
+            type="project"
+          />
+
+          <DropdownButton
+            label="Site"
+            value={state.selectedSite}
+            onPress={() => updateState({ siteModalVisible: true })}
+            disabled={!state.selectedProject}
+            type="site"
+          />
+
+          <DropdownButton
+            label="Work Description"
+            value={null}
+            onPress={() => updateState({ workDescModalVisible: true })}
+            disabled={!state.selectedSite}
+            type="workDesc"
+          />
+
+          {/* Loading Indicator */}
+          {state.loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color="#0f766e" />
+              <Text style={styles.loadingText}>Loading data...</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* DROPDOWN MODALS */}
+      <DropdownModal
+        visible={state.companyModalVisible}
+        onClose={() => updateState({ companyModalVisible: false })}
+        data={state.companies}
+        title="Select Company"
+        keyProp="company_id"
+        type="company"
+        onSelect={(item) => {
+          updateState({ 
+            selectedCompany: item, 
+            companyModalVisible: false,
+            projectModalVisible: true
+          });
+        }}
       />
 
-      {loading && <ActivityIndicator size="small" color="tomato" style={{ marginTop: 8 }} />}
-
-      {/* Modals */}
-      <DropdownModal visible={companyModal} onClose={() => setCompanyModal(false)} data={companies} onSelect={setSelectedCompany} displayField="company_name" />
-      <DropdownModal visible={projectModal} onClose={() => setProjectModal(false)} data={projects} onSelect={setSelectedProject} displayField="project_name" />
-      <DropdownModal visible={siteModal} onClose={() => setSiteModal(false)} data={sites} onSelect={setSelectedSite} displayField="site_name" />
       <DropdownModal
-        visible={workDescModal}
-        onClose={() => setWorkDescModal(false)}
-        data={workDescs}
+        visible={state.projectModalVisible}
+        onClose={() => updateState({ projectModalVisible: false })}
+        data={state.projects}
+        title="Select Project"
+        keyProp="project_id"
+        type="project"
+        onSelect={(item) => {
+          updateState({ 
+            selectedProject: item, 
+            projectModalVisible: false,
+            siteModalVisible: true
+          });
+        }}
+      />
+
+      <DropdownModal
+        visible={state.siteModalVisible}
+        onClose={() => updateState({ siteModalVisible: false })}
+        data={state.sites}
+        title="Select Site"
+        keyProp="site_id"
+        type="site"
+        onSelect={(item) => {
+          updateState({ 
+            selectedSite: item, 
+            siteModalVisible: false,
+            workDescModalVisible: true
+          });
+        }}
+      />
+
+      <DropdownModal
+        visible={state.workDescModalVisible}
+        onClose={() => updateState({ workDescModalVisible: false })}
+        data={state.workDescs}
+        title="Select Work Description"
+        keyProp="desc_id"
+        type="workDesc"
         onSelect={(item) => {
           const selection = {
-            company: selectedCompany,
-            project: selectedProject,
-            site: selectedSite,
+            company: state.selectedCompany,
+            project: state.selectedProject,
+            site: state.selectedSite,
             workDesc: item,
           };
-          setWorkDescModal(false);
+          updateState({ workDescModalVisible: false });
           navigation.navigate("ModuleSelection", { selection });
         }}
-        displayField="desc_name"
       />
     </View>
   );
@@ -295,17 +577,38 @@ function ModuleSelectionScreen() {
   const { selection } = route.params || {};
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: "#f9fafb" }}>
-      <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 16, color: "#1e293b" }}>
-        Selected: {selection?.workDesc?.desc_name}
-      </Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Choose Module</Text>
+          <Text style={styles.subtitle}>
+            Selected: {selection?.workDesc?.desc_name}
+          </Text>
+        </View>
 
-      <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
-        <ModuleCard title="Material" iconName="cube-outline" onPress={() => navigation.navigate("Material", { selection })} />
-        <ModuleCard title="Expense" iconName="cash-outline" onPress={() => navigation.navigate("Expense", { selection })} />
-        <ModuleCard title="Work" iconName="clipboard-outline" onPress={() => navigation.navigate("Work", { selection })} />
-        <ModuleCard title="Labour" iconName="people-outline" onPress={() => navigation.navigate("Labour", { selection })} />
-      </View>
+        <View style={styles.moduleGrid}>
+          <ModuleCard 
+            title="Material" 
+            iconName="cube-outline" 
+            onPress={() => navigation.navigate("Material", { selection })} 
+          />
+          <ModuleCard 
+            title="Expense" 
+            iconName="cash-outline" 
+            onPress={() => navigation.navigate("Expense", { selection })} 
+          />
+          <ModuleCard 
+            title="Work" 
+            iconName="clipboard-outline" 
+            onPress={() => navigation.navigate("Work", { selection })} 
+          />
+          <ModuleCard 
+            title="Labour" 
+            iconName="people-outline" 
+            onPress={() => navigation.navigate("Labour", { selection })} 
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -316,8 +619,238 @@ function ModuleSelectionScreen() {
 export default function Entry() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="EntryDropdown" component={EntryDropdownScreen} options={{ title: "Select Work" }} />
-      <Stack.Screen name="ModuleSelection" component={ModuleSelectionScreen} options={{ title: "Choose Module" }} />
+      <Stack.Screen 
+        name="EntryDropdown" 
+        component={EntryDropdownScreen} 
+        options={{ title: "Select Work" }} 
+      />
+      <Stack.Screen 
+        name="ModuleSelection" 
+        component={ModuleSelectionScreen} 
+        options={{ title: "Choose Module" }} 
+      />
     </Stack.Navigator>
   );
 }
+
+// ===============================
+// Styles
+// ===============================
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+  },
+  contentContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  header: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1e293b',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    fontWeight: '400',
+  },
+  
+  // DROPDOWN SECTION STYLES
+  dropdownSection: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  
+  // DROPDOWN BUTTON STYLES
+  dropdownContainer: {
+    marginBottom: 16,
+  },
+  dropdownLabel: {
+    fontWeight: '600',
+    marginBottom: 8,
+    fontSize: 14,
+    color: '#374151',
+  },
+  dropdownButton: {
+    height: 48,
+    borderWidth: 1.5,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+  },
+  dropdownButtonEnabled: {
+    borderColor: '#d1d5db',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  dropdownButtonDisabled: {
+    backgroundColor: '#f3f4f6',
+    borderColor: '#e5e7eb',
+  },
+  dropdownButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: '100%',
+  },
+  dropdownButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  dropdownPlaceholder: {
+    color: '#9ca3af',
+  },
+  dropdownActiveText: {
+    color: '#111827',
+  },
+  dropdownDisabledText: {
+    color: '#6b7280',
+  },
+
+  // POPUP MODAL STYLES
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  modalTouchable: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    padding: 16,
+    backgroundColor: '#14b8a6',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: 'white',
+  },
+  modalList: {
+    maxHeight: 400,
+  },
+  modalItem: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  modalItemText: {
+    fontSize: 16,
+    color: '#1f2937',
+  },
+  modalCancelButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#f3f4f6',
+  },
+  modalCancelText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+
+  // Loading Indicator
+  loadingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  loadingText: {
+    marginLeft: 12,
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+
+  // MODULE CARD STYLES
+  moduleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  moduleCard: {
+    width: "48%",
+    marginBottom: 20,
+    borderRadius: 12,
+    backgroundColor: "#f8fafc",
+    shadowColor: "#1e293b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    overflow: "hidden",
+  },
+  moduleCardHeader: {
+    height: 40,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+  moduleCardTitle: {
+    fontWeight: "600",
+    textAlign: "center",
+    color: "#1f2937",
+    fontSize: 12,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+  moduleCardIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
+    backgroundColor: "white",
+  },
+  moduleCardFooter: {
+    padding: 10,
+  },
+  moduleCardButton: {
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  moduleCardButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+});
