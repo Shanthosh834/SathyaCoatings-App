@@ -1165,10 +1165,10 @@ export default function LabourAssign({ route }) {
         }
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        {/* <View style={styles.header}>
           <Text style={styles.title}>Labour Assignment</Text>
           <Text style={styles.subtitle}>Assign workers to project tasks</Text>
-        </View>
+        </View> */}
 
         {/* SELECTION SUMMARY */}
         <View style={styles.selectionSummary}>

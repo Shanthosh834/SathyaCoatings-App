@@ -24,8 +24,8 @@ const MaterialCard = ({ itemId, onView, onUpdate, image, itemName, onUsage }) =>
         shadowOpacity: 0.15,
         shadowRadius: 16,
         elevation: 8,
-        borderWidth: 2,
-        borderColor: '#e2e8f0',
+        borderWidth: 0.5,
+        borderColor: '#333',
         overflow: 'hidden'
       }}
     >
@@ -99,21 +99,21 @@ const MaterialCard = ({ itemId, onView, onUpdate, image, itemName, onUsage }) =>
             flexDirection: "row",
             justifyContent: "center",
           }}
-          className="border border-[#1e7a6f] "
+          className="border border-[#1e7a6f] bg-[#1e7a6f] "
           onPress={() => onUsage(itemId)}
 
         >
           <Ionicons
             name="create-outline"
-            size={16}
-            color="#1e7a6f"
+            size={18}
+            color="#fff"
             style={{ marginRight: 6 }}
           />
           <Text style={{
-            fontSize: 12,
+            fontSize: 16,
             fontWeight: "600",
             textAlign: "center",
-            color: "#1e7a6f"
+            color: "#fff"
           }}>
             Usage
           </Text>

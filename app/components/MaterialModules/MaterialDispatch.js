@@ -1313,84 +1313,53 @@ const Material = () => {
     <View className="flex-1 p-3 bg-gray-100">
       
       {!dropdownsCollapsed ? (
-        <View className="px-4 py-2 mb-4 bg-white rounded-xl">
+        <View className="px-2 py-2 mb-4 bg-white rounded-xl border-[0.5px] ">
           {/* Display selected values from Entry.js - Read-only */}
-          {/* <View style={{ marginBottom: 10, padding: 12, backgroundColor: "#f8f9fa", borderRadius: 8, borderWidth: 1, borderColor: "#e9ecef" }}>
-            <Text style={{ fontWeight: "600", marginBottom: 8, fontSize: 14, color: "#495057" }}>
-              Selected Work Details
-            </Text>
-            
-            <View style={{ marginBottom: 4 }}>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Company:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selectedCompany?.company_name || "Not selected"}
-              </Text>
-            </View>
-            
-            <View style={{ marginBottom: 4 }}>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Project:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selectedProject?.project_name || "Not selected"}
-              </Text>
-            </View>
-            
-            <View style={{ marginBottom: 4 }}>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Site:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selectedSite?.site_name || "Not selected"}
-              </Text>
-            </View>
-            
-            <View>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Work Description:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selectedWorkDescription?.desc_name || "Not selected"}
-              </Text>
-            </View>
-          </View> */}
-          <View className="bg-white mx-1 mb-4 rounded-xl p-4 shadow-sm border border-gray-200">
-            <Text className="text-sm font-semibold text-gray-700 mb-3">
-              Selected Work Details
-            </Text>
+       
+            <View className=" rounded-lg ">
+              {/* Grid container */}
+              <View className="flex-row flex-wrap">
+                {/* Company */}
+                <View className="w-1/2 mb-1 pr-2">
+                  <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+                    Company
+                  </Text>
+                  <Text className="text-xs font-semibold text-gray-800">
+                    {selectedCompany?.company_name || "—"}
+                  </Text>
+                </View>
 
-            <View className="flex-row justify-between items-start mb-2 py-1">
-              <Text className="text-sm font-semibold text-gray-700 w-1/3">
-                Company:
-              </Text>
-              <Text className="text-sm text-gray-800 flex-1 text-right">
-                {selectedCompany?.company_name || "Not selected"}
-              </Text>
+                {/* Project */}
+                <View className="w-1/2 mb-3 pl-2">
+                  <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+                    Project
+                  </Text>
+                  <Text className="text-xs font-semibold text-gray-800">
+                    {selectedProject?.project_name || "—"}
+                  </Text>
+                </View>
+
+                {/* Site */}
+                <View className="w-1/2 pr-2">
+                  <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+                    Site
+                  </Text>
+                  <Text className="text-xs font-semibold text-gray-800">
+                    {selectedSite?.site_name || "—"}
+                  </Text>
+                </View>
+
+                {/* Work */}
+                <View className="w-1/2 pl-2">
+                  <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+                    Work
+                  </Text>
+                  <Text className="text-xs font-semibold text-gray-800">
+                    {selectedWorkDescription?.desc_name || "—"}
+                  </Text>
+                </View>
+              </View>
             </View>
-
-            <View className="flex-row justify-between items-start mb-2 py-1">
-              <Text className="text-sm font-semibold text-gray-700 w-1/3">
-                Project:
-              </Text>
-              <Text className="text-sm text-gray-800 flex-1 text-right">
-                {selectedProject?.project_name || "Not selected"}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-between items-start mb-2 py-1">
-              <Text className="text-sm font-semibold text-gray-700 w-1/3">
-                Site:
-              </Text>
-              <Text className="text-sm text-gray-800 flex-1 text-right">
-                {selectedSite?.site_name || "Not selected"}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-between items-start py-1">
-              <Text className="text-sm font-semibold text-gray-700 w-1/3">
-                Work:
-              </Text>
-              <Text className="text-sm text-gray-800 flex-1 text-right">
-                {selectedWorkDescription?.desc_name || "Not selected"}
-              </Text>
-            </View>
-          </View>
-
-
         </View>
       ) : (
         <>

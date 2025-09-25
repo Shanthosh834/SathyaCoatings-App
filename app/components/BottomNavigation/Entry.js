@@ -570,10 +570,10 @@ function ModuleSelectionScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.header}>
-          <Text style={styles.title}>Choose Module</Text>
+          {/* <Text style={styles.title}>Choose Module</Text>
           <Text style={styles.subtitle}>
             Selected: {selection?.workDesc?.desc_name}
-          </Text>
+          </Text> */}
         </View>
 
         <View style={styles.moduleGrid}>
@@ -686,34 +686,112 @@ export default function Entry() {
   return (
     <Stack.Navigator>
       <Stack.Screen 
-        name="EntryDropdown" 
+        name=" " 
         component={EntryDropdownScreen} 
-        options={{ title: "Select Work" }} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="ModuleSelection" 
         component={ModuleSelectionScreen} 
-        options={{ title: "Choose Module" }} 
+        
+         options={{
+          
+          title: "Select Your Entry",
+          headerStyle: {
+            height: 100,            // Set custom header height
+            backgroundColor: "#fff", // Optional: header background color
+            shadowColor: "#000",    // Optional: shadow color (iOS)
+            elevation: 4,           // Optional: shadow for Android
+          },
+          headerTitleStyle: {
+            fontSize: 24,           // Custom title font size
+            fontWeight: "bold",     // Custom title font weight
+            color: "#333",          // Custom title color
+          },
+           headerTitleContainerStyle: {
+            paddingVertical: 30, // adds vertical padding → taller header
+          },
+          headerTitleAlign: "center", // Optional: center the title
+        }}
       />
       <Stack.Screen 
         name="MaterialModule" 
         component={MaterialModuleScreen} 
-        options={{ title: "Material Dispatch" }} 
+        // options={{ title: "Material Dispatch" }} 
+        options={{
+          title: "Material ",
+          headerStyle: {
+            height: 100,            // Set custom header height
+            backgroundColor: "#fff", // Optional: header background color
+            shadowColor: "#000",    // Optional: shadow color (iOS)
+            elevation: 4,           // Optional: shadow for Android
+          },
+          headerTitleStyle: {
+            fontSize: 24,           // Custom title font size
+            fontWeight: "bold",     // Custom title font weight
+            color: "#333",          // Custom title color
+          },
+          headerTitleAlign: "center", // Optional: center the title
+        }}
       />
       <Stack.Screen 
         name="ExpenseModule" 
         component={ExpenseModuleScreen} 
-        options={{ title: "Expense Entry" }} 
+        // options={{ title: "Expense Entry" }} 
+        options={{
+          title: "Budget Expense Entry",
+          headerStyle: {
+            height: 100,            // Set custom header height
+            backgroundColor: "#fff", // Optional: header background color
+            shadowColor: "#000",    // Optional: shadow color (iOS)
+            elevation: 4,           // Optional: shadow for Android
+          },
+          headerTitleStyle: {
+            fontSize: 24,           // Custom title font size
+            fontWeight: "bold",     // Custom title font weight
+            color: "#333",          // Custom title color
+          },
+          headerTitleAlign: "center", // Optional: center the title
+        }}
       />
       <Stack.Screen 
         name="WorkModule" 
         component={WorkModuleScreen} 
-        options={{ title: "Work Management" }} 
+        options={{
+          title: "Work Completion Entry",
+          headerStyle: {
+            height: 50,            // Set custom header height
+            backgroundColor: "#fff", // Optional: header background color
+            shadowColor: "#000",    // Optional: shadow color (iOS)
+            elevation: 4,           // Optional: shadow for Android
+          },
+          headerTitleStyle: {
+            fontSize: 24,           // Custom title font size
+            fontWeight: "bold",     // Custom title font weight
+            color: "#333",          // Custom title color
+          },
+          headerTitleAlign: "center", // Optional: center the title
+        }}
       />
       <Stack.Screen 
         name="LabourModule" 
         component={LabourModuleScreen} 
-        options={{ title: "Labour Assignment" }} 
+        // options={{ title: "Labour Assignment" }} 
+        options={{
+          title: "Labour Assignment",
+          headerStyle: {
+            height: 100,            // Set custom header height
+            backgroundColor: "#fff", // Optional: header background color
+            shadowColor: "#000",    // Optional: shadow color (iOS)
+            elevation: 4,           // Optional: shadow for Android
+          },
+          headerTitleStyle: {
+            fontSize: 24,           // Custom title font size
+            fontWeight: "bold",     // Custom title font weight
+            color: "#333",          // Custom title color
+          },
+          headerTitleAlign: "center", // Optional: center the title
+        }}
       />
     </Stack.Navigator>
   );

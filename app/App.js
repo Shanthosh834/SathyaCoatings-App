@@ -21,7 +21,7 @@ import "./assets/logo.png"
 import { useState, useEffect, useRef } from "react";
 import * as SecureStore from "expo-secure-store";
 import PagerView from 'react-native-pager-view';
-
+import { BackHandler } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LabourAssign from "./components/Labour/LabourAssign";
 import Entry from "./components/BottomNavigation/Entry";
@@ -341,20 +341,26 @@ function MainTabs({ navigation }) {
 }
 
 export default function App() {
+  useEffect(() => {
+  const backAction = () => true; // returning true = prevent back
+  const subscription = BackHandler.addEventListener("hardwareBackPress", backAction);
+
+  return () => subscription.remove();
+}, []);
   return (
     <PaperProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{ headerShown: false, gestureEnabled: false, }}>
           {/* Login First */}
 
           {/* <Stack.Screen name="Login" component={LoginPage} /> */}
           
-          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen name="MainTabs" component={MainTabs}   options={{ gestureEnabled: false }}/>
            {/* Add deep screens here */}
-  <Stack.Screen name="Material" component={Material} />
-  <Stack.Screen name="Expense" component={ExpenseEntry} />
-  <Stack.Screen name="Work" component={Work} />
-  <Stack.Screen name="Labour" component={LabourAssign} />
+          <Stack.Screen name="Material" component={Material}   options={{ gestureEnabled: false }}/>
+          <Stack.Screen name="Expense" component={ExpenseEntry}   options={{ gestureEnabled: false }}/>
+          <Stack.Screen name="Work" component={Work}   options={{ gestureEnabled: false }}/>
+          <Stack.Screen name="Labour" component={LabourAssign}   options={{ gestureEnabled: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
