@@ -255,12 +255,13 @@ const DropdownModal = ({ visible, onClose, data, onSelect, title, keyProp, type 
 };
 
 // ===============================
-// Inline ModuleCard
+// Updated ModuleCard - Simplified without colors and tap button
 // ===============================
-const ModuleCard = ({ title, iconName, color = "#1e7a6f", onPress }) => (
+const ModuleCard = ({ title, iconName, onPress }) => (
   <TouchableOpacity
     onPress={onPress}
     style={styles.moduleCard}
+    activeOpacity={0.7}
   >
     {/* Header */}
     <View style={styles.moduleCardHeader}>
@@ -271,22 +272,7 @@ const ModuleCard = ({ title, iconName, color = "#1e7a6f", onPress }) => (
 
     {/* Icon */}
     <View style={styles.moduleCardIconContainer}>
-      <Ionicons name={iconName} size={36} color={color} />
-    </View>
-
-    {/* Footer Button */}
-    <View style={styles.moduleCardFooter}>
-      <View style={[styles.moduleCardButton, { borderColor: color }]}>
-        <Ionicons
-          name="arrow-forward-circle-outline"
-          size={16}
-          color={color}
-          style={{ marginRight: 6 }}
-        />
-        <Text style={[styles.moduleCardButtonText, { color }]}>
-          Open
-        </Text>
-      </View>
+      <Ionicons name={iconName} size={36} color="#6b7280" />
     </View>
   </TouchableOpacity>
 );
@@ -895,7 +881,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // MODULE CARD STYLES
+  // SIMPLIFIED MODULE CARD STYLES - No colors, no tap button
   moduleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -906,51 +892,34 @@ const styles = StyleSheet.create({
     width: "48%",
     marginBottom: 20,
     borderRadius: 12,
-    backgroundColor: "#f8fafc",
-    shadowColor: "#1e293b",
+    backgroundColor: "#ffffff",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 4,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#e5e7eb",
     overflow: "hidden",
   },
   moduleCardHeader: {
-    height: 40,
+    height: 45,
     borderBottomWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#e5e7eb",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#f9fafb",
   },
   moduleCardTitle: {
     fontWeight: "600",
     textAlign: "center",
-    color: "#1f2937",
-    fontSize: 12,
+    color: "#374151",
+    fontSize: 18,
     letterSpacing: 0.5,
-    textTransform: "uppercase",
   },
   moduleCardIconContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 20,
+    paddingVertical: 32,
     backgroundColor: "white",
-  },
-  moduleCardFooter: {
-    padding: 10,
-  },
-  moduleCardButton: {
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  moduleCardButtonText: {
-    fontSize: 12,
-    fontWeight: "600",
-    textAlign: "center",
   },
 });
