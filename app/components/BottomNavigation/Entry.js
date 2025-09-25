@@ -14,6 +14,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
+import LabourAssign from "../Labour/LabourAssign";
+import Material from "../MaterialModules/MaterialDispatch";
+import ExpenseEntry from "../ExpenseModules/ExpenseEntry";
+import Work from "../WorkModules/Work";
 
 // API Configuration
 const API_CONFIG = {
@@ -590,25 +594,101 @@ function ModuleSelectionScreen() {
           <ModuleCard 
             title="Material" 
             iconName="cube-outline" 
-            onPress={() => navigation.navigate("Material", { selection })} 
+            onPress={() => navigation.navigate("MaterialModule", { selection })} 
           />
           <ModuleCard 
             title="Expense" 
             iconName="cash-outline" 
-            onPress={() => navigation.navigate("Expense", { selection })} 
+            onPress={() => navigation.navigate("ExpenseModule", { selection })} 
           />
           <ModuleCard 
             title="Work" 
             iconName="clipboard-outline" 
-            onPress={() => navigation.navigate("Work", { selection })} 
+            onPress={() => navigation.navigate("WorkModule", { selection })} 
           />
           <ModuleCard 
             title="Labour" 
             iconName="people-outline" 
-            onPress={() => navigation.navigate("Labour", { selection })} 
+            onPress={() => navigation.navigate("LabourModule", { selection })} 
           />
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+// ===============================
+// Screen 3: Material Module
+// ===============================
+function MaterialModuleScreen() {
+  const route = useRoute();
+  const { selection } = route.params || {};
+
+  return (
+    <View style={styles.container}>
+      <Material 
+        route={{ params: { 
+          selection,
+          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+        }}} 
+      />
+    </View>
+  );
+}
+
+// ===============================
+// Screen 4: Expense Module
+// ===============================
+function ExpenseModuleScreen() {
+  const route = useRoute();
+  const { selection } = route.params || {};
+
+  return (
+    <View style={styles.container}>
+      <ExpenseEntry 
+        route={{ params: { 
+          selection,
+          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+        }}} 
+      />
+    </View>
+  );
+}
+
+// ===============================
+// Screen 5: Work Module
+// ===============================
+function WorkModuleScreen() {
+  const route = useRoute();
+  const { selection } = route.params || {};
+
+  return (
+    <View style={styles.container}>
+      <Work 
+        route={{ params: { 
+          selection,
+          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+        }}} 
+      />
+    </View>
+  );
+}
+
+// ===============================
+// Screen 6: Labour Module
+// ===============================
+function LabourModuleScreen() {
+  const route = useRoute();
+  const { selection } = route.params || {};
+
+  return (
+    <View style={styles.container}>
+      <LabourAssign 
+        route={{ params: { 
+          selection,
+          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+        }}} 
+      />
     </View>
   );
 }
@@ -628,6 +708,26 @@ export default function Entry() {
         name="ModuleSelection" 
         component={ModuleSelectionScreen} 
         options={{ title: "Choose Module" }} 
+      />
+      <Stack.Screen 
+        name="MaterialModule" 
+        component={MaterialModuleScreen} 
+        options={{ title: "Material Dispatch" }} 
+      />
+      <Stack.Screen 
+        name="ExpenseModule" 
+        component={ExpenseModuleScreen} 
+        options={{ title: "Expense Entry" }} 
+      />
+      <Stack.Screen 
+        name="WorkModule" 
+        component={WorkModuleScreen} 
+        options={{ title: "Work Management" }} 
+      />
+      <Stack.Screen 
+        name="LabourModule" 
+        component={LabourModuleScreen} 
+        options={{ title: "Labour Assignment" }} 
       />
     </Stack.Navigator>
   );
