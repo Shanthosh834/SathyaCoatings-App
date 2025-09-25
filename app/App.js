@@ -1,6 +1,7 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./global.css";
 import { Button, PaperProvider } from "react-native-paper";
+
 import Work from "./components/WorkModules/Work";
 import Material from "./components/MaterialModules/MaterialDispatch";
 import { NavigationContainer } from "@react-navigation/native";
@@ -24,6 +25,7 @@ import PagerView from 'react-native-pager-view';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LabourAssign from "./components/Labour/LabourAssign";
 import Entry from "./components/BottomNavigation/Entry";
+
 import Views from "./components/BottomNavigation/Views";
 import Remarks from "./components/BottomNavigation/Remarks";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -34,7 +36,7 @@ const Tab = createBottomTabNavigator();
 const { width: screenWidth } = Dimensions.get('window');
 
 // Custom Tab Navigator with Swipe Support
-function SwipeableTabNavigator({ navigation }) {
+function SwipeableTabNavigator({ navigation, route }) {
   const [leaderBoardVisible, setLeaderBoardVisible] = useState(false);
   const [profileVisible, setProfileVisible] = useState(false);
   const [userData, setUserData] = useState({ email: "", name: "" });
@@ -43,26 +45,26 @@ function SwipeableTabNavigator({ navigation }) {
 
   // Tab configuration
   const tabs = [
-    {
-      name: "Expense",
-      component: ExpenseEntry,
-      icon: ({ size, color }) => <FontAwesome5 name="rupee-sign" size={size} color={color} />,
-    },
-    {
-      name: "Material",
-      component: Material,
-      icon: ({ size, color }) => <Feather name="package" size={size} color={color} />,
-    },
-    {
-      name: "Work",
-      component: Work,
-      icon: ({ size, color }) => <Foundation name="clipboard-notes" size={size} color={color} />,
-    },
-    {
-      name: "Labour",
-      component: LabourAssign,
-      icon: ({ size, color }) => <Feather name="users" size={size} color={color} />,
-    },
+    // {
+    //   name: "Expense",
+    //   component: ExpenseEntry,
+    //   icon: ({ size, color }) => <FontAwesome5 name="rupee-sign" size={size} color={color} />,
+    // },
+    // {
+    //   name: "Material",
+    //   component: Material,
+    //   icon: ({ size, color }) => <Feather name="package" size={size} color={color} />,
+    // },
+    // {
+    //   name: "Work",
+    //   component: Work,
+    //   icon: ({ size, color }) => <Foundation name="clipboard-notes" size={size} color={color} />,
+    // },
+    // {
+    //   name: "Labour",
+    //   component: LabourAssign,
+    //   icon: ({ size, color }) => <Feather name="users" size={size} color={color} />,
+    // },
     {
       name: "Entry",
       component: Entry,
@@ -79,6 +81,14 @@ function SwipeableTabNavigator({ navigation }) {
       icon: ({ size, color }) => <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
     },
   ];
+
+   // listen for pageIndex param
+  // useEffect(() => {
+  //   if (route?.params?.pageIndex !== undefined) {
+  //     pagerRef.current?.setPage(route.params.pageIndex);
+  //     setCurrentPage(route.params.pageIndex);
+  //   }
+  // }, [route?.params?.pageIndex]);
 
   // Load user info from SecureStore
   useEffect(() => {
@@ -340,6 +350,11 @@ export default function App() {
           {/* <Stack.Screen name="Login" component={LoginPage} /> */}
           
           <Stack.Screen name="MainTabs" component={MainTabs} />
+           {/* Add deep screens here */}
+  <Stack.Screen name="Material" component={Material} />
+  <Stack.Screen name="Expense" component={ExpenseEntry} />
+  <Stack.Screen name="Work" component={Work} />
+  <Stack.Screen name="Labour" component={LabourAssign} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
