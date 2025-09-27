@@ -7,8 +7,6 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  Modal,
-  FlatList,
   TextInput,
   Dimensions,
   SafeAreaView,
@@ -16,6 +14,7 @@ import {
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get('window');
@@ -106,85 +105,6 @@ const handleApiError = (error, context = '') => {
 
   return userMessage;
 };
-
-// Dropdown Button Component
-const DropdownButton = ({ label, value, onPress, disabled }) => (
-  <View style={styles.dropdownContainer}>
-    <Text style={styles.dropdownLabel}>{label}</Text>
-    <TouchableOpacity
-      disabled={disabled}
-      onPress={onPress}
-      style={[
-        styles.dropdownButton,
-        disabled ? styles.dropdownButtonDisabled : styles.dropdownButtonEnabled
-      ]}
-    >
-      <View style={styles.dropdownButtonContent}>
-        <Text 
-          style={[
-            styles.dropdownButtonText,
-            !value ? styles.dropdownPlaceholder : (disabled ? styles.dropdownDisabledText : styles.dropdownActiveText)
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {value ? 
-            (label === 'Company' ? value.company_name :
-             label === 'Project' ? value.project_name :
-             label === 'Site' ? value.site_name :
-             label === 'Work Description' ? value.desc_name : 
-             value) 
-            : `Select ${label}`}
-        </Text>
-        <Ionicons name="chevron-down" size={18} color="#888" />
-      </View>
-    </TouchableOpacity>
-  </View>
-);
-
-// Dropdown Modal Component
-const DropdownModal = ({ visible, onClose, data, onSelect, title, keyProp, searchQuery, setSearchQuery }) => (
-  <Modal visible={visible} transparent animationType="fade">
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContent}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>{title}</Text>
-        </View>
-
-        <FlatList
-          data={data}
-          keyExtractor={(item) => String(item[keyProp])}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => {
-                onSelect(item);
-                onClose();
-              }}
-              style={styles.modalItem}
-            >
-              <Text style={styles.modalItemText} numberOfLines={2}>
-                {title === 'Select Company' ? item.company_name :
-                 title === 'Select Project' ? item.project_name :
-                 title === 'Select Site' ? item.site_name :
-                 title === 'Select Work Description' ? item.desc_name :
-                 item.name}
-              </Text>
-            </TouchableOpacity>
-          )}
-          showsVerticalScrollIndicator={true}
-          style={styles.modalList}
-        />
-
-        <TouchableOpacity
-          onPress={onClose}
-          style={styles.modalCancelButton}
-        >
-          <Text style={styles.modalCancelText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </Modal>
-);
 
 // Product Card Component (shows product name with Usage button)
 const ProductCard = ({ budget, onUsagePress }) => {
@@ -329,26 +249,38 @@ const BudgetDetailCard = ({ budget, expenseDetails, expenseInputs, handleInputCh
   );
 };
 
+// Selection Info Header Component
+const SelectionInfoHeader = ({ selection }) => (
+  <View style={styles.selectionInfoHeader}>
+    <View style={styles.selectionInfoRow}>
+      <Text style={styles.selectionInfoLabel}>Company:</Text>
+      <Text style={styles.selectionInfoValue}>{selection?.company?.company_name || 'Not selected'}</Text>
+    </View>
+    <View style={styles.selectionInfoRow}>
+      <Text style={styles.selectionInfoLabel}>Project:</Text>
+      <Text style={styles.selectionInfoValue}>{selection?.project?.project_name || 'Not selected'}</Text>
+    </View>
+    <View style={styles.selectionInfoRow}>
+      <Text style={styles.selectionInfoLabel}>Site:</Text>
+      <Text style={styles.selectionInfoValue}>{selection?.site?.site_name || 'Not selected'}</Text>
+    </View>
+    <View style={styles.selectionInfoRow}>
+      <Text style={styles.selectionInfoLabel}>Work Description:</Text>
+      <Text style={styles.selectionInfoValue}>{selection?.workDesc?.desc_name || 'Not selected'}</Text>
+    </View>
+  </View>
+);
+
 export default function BudgetExpenseEntry() {
+  const route = useRoute();
+  const { selection, encodedUserId } = route.params || {};
+
   const [state, setState] = useState({
-    companies: [],
-    projects: [],
-    sites: [],
-    workDescs: [],
     budgetData: [],
     filteredBudget: [],
-    selectedCompany: null,
-    selectedProject: null,
-    selectedSite: null,
-    selectedWorkDesc: null,
     loading: false,
     refreshing: false,
     submitting: false,
-    companyModalVisible: false,
-    projectModalVisible: false,
-    siteModalVisible: false,
-    workDescModalVisible: false,
-    dropdownsCollapsed: false,
     selectedDate: new Date().toISOString().split('T')[0],
     expenseDetails: {},
     selectedProduct: null,
@@ -356,34 +288,12 @@ export default function BudgetExpenseEntry() {
   });
 
   const [expenseInputs, setExpenseInputs] = useState({});
-  const [searchQueryCompany, setSearchQueryCompany] = useState("");
-  const [searchQueryProject, setSearchQueryProject] = useState("");
-  const [searchQuerySite, setSearchQuerySite] = useState("");
-  const [searchQueryWorkDesc, setSearchQueryWorkDesc] = useState("");
 
   const updateState = useCallback((updates) => {
     setState(prevState => ({ ...prevState, ...updates }));
   }, []);
 
   const apiService = useMemo(() => ({
-    async fetchCompanies() {
-      const response = await apiClient.get('/project/companies');
-      console.log('Companies API Response:', response.data);
-      return response.data || [];
-    },
-
-    async fetchProjects(companyId) {
-      console.log('Fetching projects for company ID:', companyId);
-      const response = await apiClient.get(`/project/projects-with-sites/${companyId}`);
-      console.log('Projects API Response:', response.data);
-      return response.data || [];
-    },
-
-    async fetchWorkDescriptions(siteId) {
-      const response = await apiClient.get(`/site-incharge/budget-work-descriptions/${siteId}`);
-      return response.data?.data || [];
-    },
-
     async fetchBudgetDetails(siteId) {
       const response = await apiClient.get(`/site-incharge/budget-details?site_id=${siteId}`);
       return response.data?.data || [];
@@ -416,138 +326,32 @@ export default function BudgetExpenseEntry() {
     callCalculateLabourBudget();
   }, []);
 
+  // Fetch budget data when selection is available
   useEffect(() => {
     let isMounted = true;
     
-    const fetchCompanies = async () => {
-      try {
-        updateState({ loading: true });
-        const companies = await apiService.fetchCompanies();
-        if (isMounted) {
-          updateState({ companies });
-        }
-      } catch (error) {
-        if (isMounted) {
-          const message = handleApiError(error, 'fetch companies');
-          Toast.show({ type: 'error', text1: message });
-        }
-      } finally {
-        if (isMounted) {
-          updateState({ loading: false });
-        }
-      }
-    };
-    
-    fetchCompanies();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [apiService, updateState]);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    if (state.selectedCompany) {
-      const fetchProjects = async () => {
-        try {
-          updateState({ loading: true });
-          const projects = await apiService.fetchProjects(state.selectedCompany.company_id);
-          if (isMounted) {
-            updateState({ 
-              projects,
-              selectedProject: null,
-              sites: [],
-              selectedSite: null,
-              selectedWorkDesc: null,
-              budgetData: [],
-              filteredBudget: [],
-              expenseDetails: {},
-            });
-            setExpenseInputs({});
-          }
-        } catch (error) {
-          if (isMounted) {
-            const message = handleApiError(error, 'fetch projects');
-            Toast.show({ type: 'error', text1: message });
-          }
-        } finally {
-          if (isMounted) {
-            updateState({ loading: false });
-          }
-        }
-      };
-      fetchProjects();
-    } else {
-      if (isMounted) {
-        updateState({
-          projects: [],
-          selectedProject: null,
-          sites: [],
-          selectedSite: null,
-          selectedWorkDesc: null,
-          budgetData: [],
-          filteredBudget: [],
-          expenseDetails: {},
-        });
-        setExpenseInputs({});
-      }
-    }
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [state.selectedCompany, apiService, updateState]);
-
-  useEffect(() => {
-    if (state.selectedProject) {
-      const selectedProjectData = state.projects.find(
-        project => project.project_id === state.selectedProject.project_id
-      );
-      
-      const siteOptions = selectedProjectData
-        ? selectedProjectData.sites.map((site) => ({
-            site_id: site.site_id,
-            site_name: `${site.site_name} (PO: ${site.po_number})`,
-          }))
-        : [];
-      
-      updateState({
-        sites: siteOptions,
-        selectedSite: null,
-        selectedWorkDesc: null,
-        budgetData: [],
-        filteredBudget: [],
-        expenseDetails: {},
-      });
-      setExpenseInputs({});
-    }
-  }, [state.selectedProject, state.projects, updateState]);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    if (state.selectedSite) {
-      const fetchSiteData = async () => {
+    if (selection?.site?.site_id) {
+      const fetchBudgetData = async () => {
         try {
           updateState({ loading: true });
           
-          const [workDescs, budgetData] = await Promise.all([
-            apiService.fetchWorkDescriptions(state.selectedSite.site_id),
-            apiService.fetchBudgetDetails(state.selectedSite.site_id),
-          ]);
+          const budgetData = await apiService.fetchBudgetDetails(selection.site.site_id);
           
           if (isMounted) {
+            // Filter budget data based on work description if available
+            const filteredData = selection.workDesc 
+              ? budgetData.filter(item => item.work_desc_id === selection.workDesc.work_desc_id)
+              : budgetData;
+              
             updateState({ 
-              workDescs,
               budgetData,
-              filteredBudget: budgetData,
+              filteredBudget: filteredData,
               expenseDetails: {},
             });
           }
         } catch (error) {
           if (isMounted) {
-            const message = handleApiError(error, 'fetch site data');
+            const message = handleApiError(error, 'fetch budget data');
             Toast.show({ type: 'error', text1: message });
           }
         } finally {
@@ -556,25 +360,15 @@ export default function BudgetExpenseEntry() {
           }
         }
       };
-      fetchSiteData();
+      fetchBudgetData();
     }
     
     return () => {
       isMounted = false;
     };
-  }, [state.selectedSite, apiService, updateState]);
+  }, [selection, apiService, updateState]);
 
-  useEffect(() => {
-    if (state.selectedWorkDesc) {
-      const filtered = state.budgetData.filter(
-        item => item.work_desc_id === state.selectedWorkDesc.work_desc_id
-      );
-      updateState({ filteredBudget: filtered });
-    } else {
-      updateState({ filteredBudget: state.budgetData });
-    }
-  }, [state.selectedWorkDesc, state.budgetData, updateState]);
-
+  // Fetch expense details when date or budget data changes
   useEffect(() => {
     if (state.selectedDate && state.filteredBudget.length > 0) {
       const fetchAllExpenseDetails = async () => {
@@ -601,30 +395,28 @@ export default function BudgetExpenseEntry() {
   }, [state.selectedDate, state.filteredBudget, apiService, updateState]);
 
   const handleRefresh = useCallback(async () => {
+    if (!selection?.site?.site_id) return;
+    
     updateState({ refreshing: true });
     
     try {
-      if (state.selectedSite) {
-        const [workDescs, budgetData] = await Promise.all([
-          apiService.fetchWorkDescriptions(state.selectedSite.site_id),
-          apiService.fetchBudgetDetails(state.selectedSite.site_id),
-        ]);
+      const budgetData = await apiService.fetchBudgetDetails(selection.site.site_id);
+      
+      const filteredData = selection.workDesc 
+        ? budgetData.filter(item => item.work_desc_id === selection.workDesc.work_desc_id)
+        : budgetData;
         
-        updateState({ 
-          workDescs,
-          budgetData,
-          filteredBudget: state.selectedWorkDesc 
-            ? budgetData.filter(item => item.work_desc_id === state.selectedWorkDesc.work_desc_id)
-            : budgetData,
-        });
-      }
+      updateState({ 
+        budgetData,
+        filteredBudget: filteredData,
+      });
     } catch (error) {
       const message = handleApiError(error, 'refresh data');
       Toast.show({ type: 'error', text1: message });
     } finally {
       updateState({ refreshing: false });
     }
-  }, [state.selectedSite, state.selectedWorkDesc, apiService, updateState]);
+  }, [selection, apiService, updateState]);
 
   const handleInputChange = useCallback((budgetId, field, value) => {
     if (field === 'actual_value') {
@@ -667,8 +459,15 @@ export default function BudgetExpenseEntry() {
     try {
       updateState({ submitting: true });
       
-      // For demo purposes, we'll use a mock user ID
-      const user_id = "1"; // In a real app, this would come from authentication
+      // Decode user ID from the encoded parameter or use default
+      let user_id = "1";
+      try {
+        if (encodedUserId) {
+          user_id = atob(encodedUserId);
+        }
+      } catch (decodeError) {
+        console.warn("Could not decode user ID, using default");
+      }
 
       const payload = {
         actual_budget_id: budgetId,
@@ -711,66 +510,7 @@ export default function BudgetExpenseEntry() {
     } finally {
       updateState({ submitting: false });
     }
-  }, [expenseInputs, state.selectedDate, apiService, updateState]);
-
-  // Filter data based on search queries
-  const filteredCompanies = useMemo(() => {
-    return state.companies.filter(company => 
-      company.company_name.toLowerCase().includes(searchQueryCompany.toLowerCase())
-    );
-  }, [state.companies, searchQueryCompany]);
-
-  const filteredProjects = useMemo(() => {
-    return state.projects.filter(project => 
-      project.project_name.toLowerCase().includes(searchQueryProject.toLowerCase())
-    );
-  }, [state.projects, searchQueryProject]);
-
-  const filteredSites = useMemo(() => {
-    return state.sites.filter(site => 
-      site.site_name.toLowerCase().includes(searchQuerySite.toLowerCase())
-    );
-  }, [state.sites, searchQuerySite]);
-
-  const filteredWorkDescs = useMemo(() => {
-    return state.workDescs.filter(workDesc => 
-      workDesc.desc_name.toLowerCase().includes(searchQueryWorkDesc.toLowerCase())
-    );
-  }, [state.workDescs, searchQueryWorkDesc]);
-
-  // Handle modal selections with proper closing
-  const handleCompanySelect = useCallback((item) => {
-    updateState({ 
-      selectedCompany: item,
-      selectedProject: null,
-      selectedSite: null,
-      selectedWorkDesc: null,
-      budgetData: [],
-      filteredBudget: [],
-      expenseDetails: {},
-    });
-    setExpenseInputs({});
-  }, [updateState]);
-
-  const handleProjectSelect = useCallback((item) => {
-    updateState({ 
-      selectedProject: item,
-      selectedSite: null,
-      selectedWorkDesc: null,
-      budgetData: [],
-      filteredBudget: [],
-      expenseDetails: {},
-    });
-    setExpenseInputs({});
-  }, [updateState]);
-
-  const handleSiteSelect = useCallback((item) => {
-    updateState({ selectedSite: item });
-  }, [updateState]);
-
-  const handleWorkDescSelect = useCallback((item) => {
-    updateState({ selectedWorkDesc: item, dropdownsCollapsed: true });
-  }, [updateState]);
+  }, [expenseInputs, state.selectedDate, apiService, updateState, encodedUserId]);
 
   // Handle product usage button press
   const handleUsagePress = useCallback((budget) => {
@@ -798,8 +538,8 @@ export default function BudgetExpenseEntry() {
       );
     }
 
-    // Show consumables data after all selections are made
-    if (state.selectedCompany && state.selectedProject && state.selectedSite) {
+    // Show consumables data if selection is complete
+    if (selection?.site?.site_id) {
       // Show detail view for selected product
       if (!state.showProductCards && state.selectedProduct) {
         return (
@@ -846,7 +586,7 @@ export default function BudgetExpenseEntry() {
       <View style={styles.emptyState}>
         <Ionicons name="document-text-outline" size={48} color="#cbd5e1" />
         <Text style={styles.emptyStateText}>
-          Please complete all selections to view consumables data
+          No selection data available. Please go back and make selections.
         </Text>
       </View>
     );
@@ -860,122 +600,25 @@ export default function BudgetExpenseEntry() {
           <RefreshControl 
             refreshing={state.refreshing} 
             onRefresh={handleRefresh}
-            enabled={!!state.selectedSite}
+            enabled={!!selection?.site?.site_id}
           />
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Dropdown Section */}
-        {!state.dropdownsCollapsed && (
-          <View style={styles.dropdownSection}>
-            <DropdownButton
-              label="Company"
-              value={state.selectedCompany}
-              onPress={() => updateState({ companyModalVisible: true })}
-              disabled={state.loading}
-            />
-            
-            <DropdownButton
-              label="Project"
-              value={state.selectedProject}
-              onPress={() => updateState({ projectModalVisible: true })}
-              disabled={!state.selectedCompany || state.loading}
-            />
-            
-            <DropdownButton
-              label="Site"
-              value={state.selectedSite}
-              onPress={() => updateState({ siteModalVisible: true })}
-              disabled={!state.selectedProject || state.loading}
-            />
-            
-            <DropdownButton
-              label="Work Description"
-              value={state.selectedWorkDesc}
-              onPress={() => updateState({ workDescModalVisible: true })}
-              disabled={!state.selectedSite || state.loading}
-            />
-          </View>
-        )}
+        {/* Selection Info Header */}
+        <SelectionInfoHeader selection={selection} />
 
         <View style={styles.budgetContainer}>
           {renderCards()}
         </View>
       </ScrollView>
 
-      {/* Floating Button */}
-      {state.dropdownsCollapsed && (
-        <TouchableOpacity
-          style={styles.floatingButton}
-          onPress={() => updateState({ dropdownsCollapsed: false })}
-        >
-          <Ionicons name="list" size={24} color="white" />
-        </TouchableOpacity>
-      )}
-
-      {/* Dropdown Modals */}
-      <DropdownModal
-        visible={state.companyModalVisible}
-        onClose={() => {
-          updateState({ companyModalVisible: false });
-          setSearchQueryCompany("");
-        }}
-        data={filteredCompanies}
-        title="Select Company"
-        keyProp="company_id"
-        searchQuery={searchQueryCompany}
-        setSearchQuery={setSearchQueryCompany}
-        onSelect={handleCompanySelect}
-      />
-
-      <DropdownModal
-        visible={state.projectModalVisible}
-        onClose={() => {
-          updateState({ projectModalVisible: false });
-          setSearchQueryProject("");
-        }}
-        data={filteredProjects}
-        title="Select Project"
-        keyProp="project_id"
-        searchQuery={searchQueryProject}
-        setSearchQuery={setSearchQueryProject}
-        onSelect={handleProjectSelect}
-      />
-
-      <DropdownModal
-        visible={state.siteModalVisible}
-        onClose={() => {
-          updateState({ siteModalVisible: false });
-          setSearchQuerySite("");
-        }}
-        data={filteredSites}
-        title="Select Site"
-        keyProp="site_id"
-        searchQuery={searchQuerySite}
-        setSearchQuery={setSearchQuerySite}
-        onSelect={handleSiteSelect}
-      />
-
-      <DropdownModal
-        visible={state.workDescModalVisible}
-        onClose={() => {
-          updateState({ workDescModalVisible: false });
-          setSearchQueryWorkDesc("");
-        }}
-        data={filteredWorkDescs}
-        title="Select Work Description"
-        keyProp="work_desc_id"
-        searchQuery={searchQueryWorkDesc}
-        setSearchQuery={setSearchQueryWorkDesc}
-        onSelect={handleWorkDescSelect}
-      />
-
       <Toast />
     </SafeAreaView>
   );
 }
 
-// Styles (same as before)
+// Styles
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -985,7 +628,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
   },
-  dropdownSection: {
+  selectionInfoHeader: {
     backgroundColor: 'white',
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -996,6 +639,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  selectionInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  selectionInfoLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    flex: 1,
+  },
+  selectionInfoValue: {
+    fontSize: 14,
+    color: '#6b7280',
+    flex: 2,
+    textAlign: 'right',
   },
   budgetContainer: {
     marginBottom: 20,
@@ -1035,17 +695,6 @@ const styles = StyleSheet.create({
   },
   cardsContainer: {
     flexDirection: 'column',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 16,
   },
   emptyCategory: {
     alignItems: 'center',
@@ -1143,12 +792,6 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     flex: 1,
   },
-  budgetCardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 12,
-  },
   budgetCardSection: {
     marginBottom: 12,
   },
@@ -1226,128 +869,5 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: 'white',
     fontWeight: '600',
-  },
-  dropdownContainer: {
-    marginBottom: 16,
-  },
-  dropdownLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  dropdownButton: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-  },
-  dropdownButtonEnabled: {
-    borderColor: '#d1d5db',
-    backgroundColor: 'white',
-  },
-  dropdownButtonDisabled: {
-    borderColor: '#e5e7eb',
-    backgroundColor: '#f9fafb',
-  },
-  dropdownButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  dropdownButtonText: {
-    flex: 1,
-    fontSize: 14,
-    marginRight: 8,
-  },
-  dropdownPlaceholder: {
-    color: '#9ca3af',
-  },
-  dropdownActiveText: {
-    color: '#1f2937',
-  },
-  dropdownDisabledText: {
-    color: '#9ca3af',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    width: '100%',
-    maxHeight: '80%',
-    overflow: 'hidden',
-  },
-  modalHeader: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-    backgroundColor:'#0f766e'
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'white',
-    textAlign: 'center',
-    
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  searchIcon: {
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1f2937',
-  },
-  modalList: {
-    maxHeight: 300,
-  },
-  modalItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  modalItemText: {
-    fontSize: 16,
-    color: '#374151',
-  },
-  modalCancelButton: {
-    padding: 16,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-     backgroundColor:'#f3f4f6'
-  },
-  modalCancelText: {
-    fontSize: 16,
-    color: '#ef4444',
-    fontWeight: '600',
-  },
-  floatingButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#0f766e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
 });
