@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  ScrollView,
   FlatList,
   ActivityIndicator,
 } from 'react-native';
@@ -31,7 +29,7 @@ const apiClient = axios.create({
 });
 
 // Labour Attendance Page Component
-const LabourAttendance = ({ onBack }) => {
+const LabourAttendance = () => {
   const [labours, setLabours] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -83,13 +81,6 @@ const LabourAttendance = ({ onBack }) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#0f766e" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Labour Attendance</Text>
-          <Text style={styles.subtitle}>Track worker attendance</Text>
-        </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0f766e" />
           <Text style={styles.loadingText}>Loading labours...</Text>
@@ -100,14 +91,6 @@ const LabourAttendance = ({ onBack }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#0f766e" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Labour Attendance</Text>
-        <Text style={styles.subtitle}>Track worker attendance</Text>
-      </View>
-
       {labours.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="people-outline" size={64} color="#9ca3af" />
@@ -136,31 +119,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f3f4f6',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: 'white',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1e293b',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#64748b',
-    textAlign: 'center',
-    fontWeight: '400',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    top: 16,
-    zIndex: 1,
   },
   laboursList: {
     paddingHorizontal: 12,

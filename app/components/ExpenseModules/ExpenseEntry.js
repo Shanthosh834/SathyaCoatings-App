@@ -251,22 +251,47 @@ const BudgetDetailCard = ({ budget, expenseDetails, expenseInputs, handleInputCh
 
 // Selection Info Header Component
 const SelectionInfoHeader = ({ selection }) => (
-  <View style={styles.selectionInfoHeader}>
-    <View style={styles.selectionInfoRow}>
-      <Text style={styles.selectionInfoLabel}>Company:</Text>
-      <Text style={styles.selectionInfoValue}>{selection?.company?.company_name || 'Not selected'}</Text>
-    </View>
-    <View style={styles.selectionInfoRow}>
-      <Text style={styles.selectionInfoLabel}>Project:</Text>
-      <Text style={styles.selectionInfoValue}>{selection?.project?.project_name || 'Not selected'}</Text>
-    </View>
-    <View style={styles.selectionInfoRow}>
-      <Text style={styles.selectionInfoLabel}>Site:</Text>
-      <Text style={styles.selectionInfoValue}>{selection?.site?.site_name || 'Not selected'}</Text>
-    </View>
-    <View style={styles.selectionInfoRow}>
-      <Text style={styles.selectionInfoLabel}>Work Description:</Text>
-      <Text style={styles.selectionInfoValue}>{selection?.workDesc?.desc_name || 'Not selected'}</Text>
+  <View className="px-4 py-2 mb-4 mx-4 bg-white rounded-lg border border-gray-400">
+    <View className="flex-row flex-wrap">
+      {/* Company */}
+      <View className="w-1/2 mb-2 pr-2">
+        <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+          COMPANY
+        </Text>
+        <Text className="text-xs font-semibold text-gray-900">
+          {selection?.company?.company_name || "—"}
+        </Text>
+      </View>
+
+      {/* Project */}
+      <View className="w-1/2 mb-2 pl-2">
+        <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+          PROJECT
+        </Text>
+        <Text className="text-xs font-semibold text-gray-900">
+          {selection?.project?.project_name || "—"}
+        </Text>
+      </View>
+
+      {/* Site */}
+      <View className="w-1/2 pr-2">
+        <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+          SITE
+        </Text>
+        <Text className="text-xs font-semibold text-gray-900">
+          {selection?.site?.site_name || "—"}
+        </Text>
+      </View>
+
+      {/* Work */}
+      <View className="w-1/2 pl-2">
+        <Text className="text-[10px] uppercase tracking-wide text-gray-500">
+          WORK
+        </Text>
+        <Text className="text-xs font-semibold text-gray-900">
+          {selection?.workDesc?.desc_name || "—"}
+        </Text>
+      </View>
     </View>
   </View>
 );
@@ -627,35 +652,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingVertical: 12,
     paddingHorizontal: 12,
-  },
-  selectionInfoHeader: {
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  selectionInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  selectionInfoLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    flex: 1,
-  },
-  selectionInfoValue: {
-    fontSize: 14,
-    color: '#6b7280',
-    flex: 2,
-    textAlign: 'right',
   },
   budgetContainer: {
     marginBottom: 20,

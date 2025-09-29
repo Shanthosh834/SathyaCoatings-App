@@ -15,9 +15,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
 import LabourAssign from "../Labour/LabourAssign";
+import LabourAttendance from "../Labour/LabourAttendance";
 import Material from "../MaterialModules/MaterialDispatch";
 import ExpenseEntry from "../ExpenseModules/ExpenseEntry";
 import Work from "../WorkModules/Work";
+
 const API_CONFIG = {
   BASE_URL: "http://103.118.158.127/api",
   TIMEOUT: 15000,
@@ -613,7 +615,7 @@ function MaterialModuleScreen() {
       <Material 
         route={{ params: { 
           selection,
-          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+          encodedUserId: 'dGVzdA==' 
         }}} 
       />
     </View>
@@ -632,7 +634,7 @@ function ExpenseModuleScreen() {
       <ExpenseEntry 
         route={{ params: { 
           selection,
-          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+          encodedUserId: 'dGVzdA==' 
         }}} 
       />
     </View>
@@ -651,7 +653,7 @@ function WorkModuleScreen() {
       <Work 
         route={{ params: { 
           selection,
-          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+          encodedUserId: 'dGVzdA==' 
         }}} 
       />
     </View>
@@ -670,7 +672,7 @@ function LabourModuleScreen() {
       <LabourAssign 
         route={{ params: { 
           selection,
-          encodedUserId: 'dGVzdA==' // You might want to get this from your auth context
+          encodedUserId: 'dGVzdA==' 
         }}} 
       />
     </View>
@@ -678,10 +680,19 @@ function LabourModuleScreen() {
 }
 
 // ===============================
+// Screen 7: Labour Attendance
+// ===============================
+function LabourAttendanceScreen() {
+  return (
+    <View style={styles.container}>
+      <LabourAttendance />
+    </View>
+  );
+}
+
+// ===============================
 // Main Export: Entry Stack
 // ===============================
-
-
 export default function Entry() {
   return (
     <Stack.Navigator>
@@ -693,355 +704,289 @@ export default function Entry() {
       <Stack.Screen 
         name="ModuleSelection" 
         component={ModuleSelectionScreen} 
-        
-         options={{
-          header : ({ back, navigation }) => {
-          return (
-            <View
-              style={{
-                height: 60, // adjust as needed
-                // backgroundColor: "gray",
-                // shadowColor: "#000",
-                // shadowOffset: { width: 0, height: 2 },
-                // shadowOpacity: 0.25,
-                // shadowRadius: 3.84,
-                // elevation: 4,
-              }}
-            >
+        options={{
+          header: ({ back, navigation }) => {
+            return (
               <View
                 style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 16,
+                  height: 60,
                 }}
               >
-                {back && (
-                  <TouchableOpacity
-                    onPress={navigation.goBack}
-                    style={{
-                      position: "absolute",
-                      left: 16,
-                      padding: 8,
-                    }}
-                  >
-                    <Ionicons name="arrow-back-outline" size={24} color="black" />
-                  </TouchableOpacity>
-                )}
-                <Text
+                <View
                   style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: "#333",
-                    textAlign: "center",
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
                   }}
                 >
-                  Select Your Entry
-                </Text>
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Select Your Entry
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        },
-          // title: "Select Your Entry",
-          // headerStyle: {
-          //   height: 100,            // Set custom header height
-          //   backgroundColor: "#fff", // Optional: header background color
-          //   shadowColor: "#000",    // Optional: shadow color (iOS)
-          //   elevation: 4,           // Optional: shadow for Android
-          // },
-          // headerTitleStyle: {
-          //   fontSize: 24,           // Custom title font size
-          //   fontWeight: "bold",     // Custom title font weight
-          //   color: "#333",          // Custom title color
-          // },
-          //  headerTitleContainerStyle: {
-          //   paddingVertical: 30, // adds vertical padding → taller header
-          // },
-          // headerTitleAlign: "center", // Optional: center the title
+            );
+          },
         }}
       />
       <Stack.Screen 
         name="MaterialModule" 
         component={MaterialModuleScreen} 
-        // options={{ title: "Material Dispatch" }} 
         options={{
-          header : ({ back, navigation }) => {
-          return (
-            <View
-              style={{
-                height: 60, // adjust as needed
-                // backgroundColor: "gray",
-                // shadowColor: "#000",
-                // shadowOffset: { width: 0, height: 2 },
-                // shadowOpacity: 0.25,
-                // shadowRadius: 3.84,
-                // elevation: 4,
-              }}
-            >
+          header: ({ back, navigation }) => {
+            return (
               <View
                 style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 16,
+                  height: 60,
                 }}
               >
-                {back && (
-                  <TouchableOpacity
-                    onPress={navigation.goBack}
-                    style={{
-                      position: "absolute",
-                      left: 16,
-                      padding: 8,
-                    }}
-                  >
-                    <Ionicons name="arrow-back-outline" size={24} color="black" />
-                  </TouchableOpacity>
-                )}
-                <Text
+                <View
                   style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: "#333",
-                    textAlign: "center",
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
                   }}
                 >
-                  Material
-                </Text>
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Material
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        },
-          // title: "Select Your Entry",
-          // headerStyle: {
-          //   height: 100,            // Set custom header height
-          //   backgroundColor: "#fff", // Optional: header background color
-          //   shadowColor: "#000",    // Optional: shadow color (iOS)
-          //   elevation: 4,           // Optional: shadow for Android
-          // },
-          // headerTitleStyle: {
-          //   fontSize: 24,           // Custom title font size
-          //   fontWeight: "bold",     // Custom title font weight
-          //   color: "#333",          // Custom title color
-          // },
-          //  headerTitleContainerStyle: {
-          //   paddingVertical: 30, // adds vertical padding → taller header
-          // },
-          // headerTitleAlign: "center", // Optional: center the title
+            );
+          },
         }}
       />
       <Stack.Screen 
         name="ExpenseModule" 
         component={ExpenseModuleScreen} 
-        // options={{ title: "Expense Entry" }} 
-       options={{
-          header : ({ back, navigation }) => {
-          return (
-            <View
-              style={{
-                height: 60, // adjust as needed
-                // backgroundColor: "gray",
-                // shadowColor: "#000",
-                // shadowOffset: { width: 0, height: 2 },
-                // shadowOpacity: 0.25,
-                // shadowRadius: 3.84,
-                // elevation: 4,
-              }}
-            >
+        options={{
+          header: ({ back, navigation }) => {
+            return (
               <View
                 style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 16,
+                  height: 60,
                 }}
               >
-                {back && (
-                  <TouchableOpacity
-                    onPress={navigation.goBack}
-                    style={{
-                      position: "absolute",
-                      left: 16,
-                      padding: 8,
-                    }}
-                  >
-                    <Ionicons name="arrow-back-outline" size={24} color="black" />
-                  </TouchableOpacity>
-                )}
-                <Text
+                <View
                   style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: "#333",
-                    textAlign: "center",
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
                   }}
                 >
-                  Budget Expense Entry
-                </Text>
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Budget Expense Entry
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        },
-          // title: "Select Your Entry",
-          // headerStyle: {
-          //   height: 100,            // Set custom header height
-          //   backgroundColor: "#fff", // Optional: header background color
-          //   shadowColor: "#000",    // Optional: shadow color (iOS)
-          //   elevation: 4,           // Optional: shadow for Android
-          // },
-          // headerTitleStyle: {
-          //   fontSize: 24,           // Custom title font size
-          //   fontWeight: "bold",     // Custom title font weight
-          //   color: "#333",          // Custom title color
-          // },
-          //  headerTitleContainerStyle: {
-          //   paddingVertical: 30, // adds vertical padding → taller header
-          // },
-          // headerTitleAlign: "center", // Optional: center the title
+            );
+          },
         }}
       />
       <Stack.Screen 
         name="WorkModule" 
         component={WorkModuleScreen} 
         options={{
-          header : ({ back, navigation }) => {
-          return (
-            <View
-              style={{
-                height: 60, // adjust as needed
-                // backgroundColor: "gray",
-                // shadowColor: "#000",
-                // shadowOffset: { width: 0, height: 2 },
-                // shadowOpacity: 0.25,
-                // shadowRadius: 3.84,
-                // elevation: 4,
-              }}
-            >
+          header: ({ back, navigation }) => {
+            return (
               <View
                 style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 16,
+                  height: 60,
                 }}
               >
-                {back && (
-                  <TouchableOpacity
-                    onPress={navigation.goBack}
-                    style={{
-                      position: "absolute",
-                      left: 16,
-                      padding: 8,
-                    }}
-                  >
-                    <Ionicons name="arrow-back-outline" size={24} color="black" />
-                  </TouchableOpacity>
-                )}
-                <Text
+                <View
                   style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: "#333",
-                    textAlign: "center",
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
                   }}
                 >
-                  Work Completion Entry
-                </Text>
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Work Completion Entry
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        },
-          // title: "Select Your Entry",
-          // headerStyle: {
-          //   height: 100,            // Set custom header height
-          //   backgroundColor: "#fff", // Optional: header background color
-          //   shadowColor: "#000",    // Optional: shadow color (iOS)
-          //   elevation: 4,           // Optional: shadow for Android
-          // },
-          // headerTitleStyle: {
-          //   fontSize: 24,           // Custom title font size
-          //   fontWeight: "bold",     // Custom title font weight
-          //   color: "#333",          // Custom title color
-          // },
-          //  headerTitleContainerStyle: {
-          //   paddingVertical: 30, // adds vertical padding → taller header
-          // },
-          // headerTitleAlign: "center", // Optional: center the title
+            );
+          },
         }}
       />
       <Stack.Screen 
         name="LabourModule" 
         component={LabourModuleScreen} 
-        // options={{ title: "Labour Assignment" }} 
         options={{
-          header : ({ back, navigation }) => {
-          return (
-            <View
-              style={{
-                height: 60, // adjust as needed
-                // backgroundColor: "gray",
-                // shadowColor: "#000",
-                // shadowOffset: { width: 0, height: 2 },
-                // shadowOpacity: 0.25,
-                // shadowRadius: 3.84,
-                // elevation: 4,
-              }}
-            >
+          header: ({ back, navigation }) => {
+            return (
               <View
                 style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 16,
+                  height: 60,
                 }}
               >
-                {back && (
-                  <TouchableOpacity
-                    onPress={navigation.goBack}
-                    style={{
-                      position: "absolute",
-                      left: 16,
-                      padding: 8,
-                    }}
-                  >
-                    <Ionicons name="arrow-back-outline" size={24} color="black" />
-                  </TouchableOpacity>
-                )}
-                <Text
+                <View
                   style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: "#333",
-                    textAlign: "center",
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
                   }}
                 >
-                  Labour Assignment
-                </Text>
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Labour Assignment
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        },
-          // title: "Select Your Entry",
-          // headerStyle: {
-          //   height: 100,            // Set custom header height
-          //   backgroundColor: "#fff", // Optional: header background color
-          //   shadowColor: "#000",    // Optional: shadow color (iOS)
-          //   elevation: 4,           // Optional: shadow for Android
-          // },
-          // headerTitleStyle: {
-          //   fontSize: 24,           // Custom title font size
-          //   fontWeight: "bold",     // Custom title font weight
-          //   color: "#333",          // Custom title color
-          // },
-          //  headerTitleContainerStyle: {
-          //   paddingVertical: 30, // adds vertical padding → taller header
-          // },
-          // headerTitleAlign: "center", // Optional: center the title
+            );
+          },
+        }}
+      />
+      <Stack.Screen 
+        name="LabourAttendance" 
+        component={LabourAttendanceScreen} 
+        options={{
+          header: ({ back, navigation }) => {
+            return (
+              <View
+                style={{
+                  height: 60,
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
+                  }}
+                >
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Labour Attendance
+                  </Text>
+                </View>
+              </View>
+            );
+          },
         }}
       />
     </Stack.Navigator>
