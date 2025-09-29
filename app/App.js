@@ -25,7 +25,7 @@ import { BackHandler } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LabourAssign from "./components/Labour/LabourAssign";
 import Entry from "./components/BottomNavigation/Entry";
-
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Views from "./components/BottomNavigation/Views";
 import Remarks from "./components/BottomNavigation/Remarks";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -170,7 +170,7 @@ function SwipeableTabNavigator({ navigation, route }) {
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Image
           source={require("./assets/logo.png")}
-          style={{ width: 35, height: 35, marginRight: 8 }}
+          style={{ width: 44, height: 44, marginRight: 8 }}
           resizeMode="contain"
         />
         <Text className="font-extrabold text-white">
@@ -182,15 +182,27 @@ function SwipeableTabNavigator({ navigation, route }) {
       <View className="flex flex-row items-center">
         {/* LeaderBoard */}
         <TouchableOpacity className="mr-4" onPress={() => setLeaderBoardVisible(true)}>
-          <Icon name="leaderboard" size={32} color="#fff" />
+          {/* <Icon name="leaderboard" size={32} color="#fff" /> */}
+          <FontAwesome6 name="ranking-star" size={32} color="#fff" />
         </TouchableOpacity>
 
         {/* User Profile */}
         <TouchableOpacity
           onPress={() => setProfileVisible(true)}
-          className="items-center justify-center w-12 h-12 rounded-full"
+          className="items-center justify-center h-12 rounded-full w-14"
         >
-          <Ionicons name="person-circle-outline" size={32} color="white" />
+          {/* <Ionicons name="person-circle-outline" size={44} color="blueblack" /> */}
+          <Ionicons 
+            name="person-circle-outline" 
+            size={44} 
+            color="#fff" 
+            style={{
+              //backgroundColor: "#f0f0f0", // icon background
+              // borderRadius: 50,           // make it circular
+              // padding: 10,                // space inside
+                       // shadow for Android
+            }} 
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -283,7 +295,7 @@ function SwipeableTabNavigator({ navigation, route }) {
         <View className="items-center justify-center flex-1 bg-black/60">
           <View className="mx-4 bg-white shadow-2xl w-96 rounded-3xl">
             {/* Header */}
-            <View className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200">
               <Text className="text-xl font-semibold text-center text-gray-800">
                 Profile Information
               </Text>
@@ -308,10 +320,10 @@ function SwipeableTabNavigator({ navigation, route }) {
             </View>
             
             {/* Actions */}
-            <View className="px-6 pb-6 space-y-3">
+            <View className="gap-6 px-6 pb-6">
               <TouchableOpacity
                 onPress={handleLogout}
-                className="py-4 bg-red-500 shadow-sm rounded-xl active:bg-red-600"
+                className="py-4 mb-6 bg-red-500 shadow-sm rounded-xl active:bg-red-600"
                 activeOpacity={0.8}
               >
                 <Text className="font-semibold text-center text-white">
@@ -321,10 +333,10 @@ function SwipeableTabNavigator({ navigation, route }) {
               
               <TouchableOpacity
                 onPress={() => setProfileVisible(false)}
-                className="py-3 bg-gray-100 rounded-xl active:bg-gray-200"
+                className="py-3 bg-gray-100 rounded-xl active:bg-gray-2000"
                 activeOpacity={0.8}
               >
-                <Text className="font-medium text-center text-gray-700">
+                <Text className="font-medium text-center text-gray-700 ">
                   Close
                 </Text>
               </TouchableOpacity>

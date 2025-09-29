@@ -1316,11 +1316,11 @@ const Material = () => {
         <View className="px-2 py-2 mb-4 bg-white rounded-xl border-[0.5px] ">
           {/* Display selected values from Entry.js - Read-only */}
        
-            <View className=" rounded-lg ">
+            <View className="rounded-lg ">
               {/* Grid container */}
               <View className="flex-row flex-wrap">
                 {/* Company */}
-                <View className="w-1/2 mb-1 pr-2">
+                <View className="w-1/2 pr-2 mb-1">
                   <Text className="text-[10px] uppercase tracking-wide text-gray-500">
                     Company
                   </Text>
@@ -1330,7 +1330,7 @@ const Material = () => {
                 </View>
 
                 {/* Project */}
-                <View className="w-1/2 mb-3 pl-2">
+                <View className="w-1/2 pl-2 mb-3">
                   <Text className="text-[10px] uppercase tracking-wide text-gray-500">
                     Project
                   </Text>
