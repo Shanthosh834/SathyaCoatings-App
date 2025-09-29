@@ -18,8 +18,6 @@ import LabourAssign from "../Labour/LabourAssign";
 import Material from "../MaterialModules/MaterialDispatch";
 import ExpenseEntry from "../ExpenseModules/ExpenseEntry";
 import Work from "../WorkModules/Work";
-
-// API Configuration
 const API_CONFIG = {
   BASE_URL: "http://103.118.158.127/api",
   TIMEOUT: 15000,
@@ -682,6 +680,8 @@ function LabourModuleScreen() {
 // ===============================
 // Main Export: Entry Stack
 // ===============================
+
+
 export default function Entry() {
   return (
     <Stack.Navigator>
@@ -695,23 +695,70 @@ export default function Entry() {
         component={ModuleSelectionScreen} 
         
          options={{
-          
-          title: "Select Your Entry",
-          headerStyle: {
-            height: 100,            // Set custom header height
-            backgroundColor: "#fff", // Optional: header background color
-            shadowColor: "#000",    // Optional: shadow color (iOS)
-            elevation: 4,           // Optional: shadow for Android
-          },
-          headerTitleStyle: {
-            fontSize: 24,           // Custom title font size
-            fontWeight: "bold",     // Custom title font weight
-            color: "#333",          // Custom title color
-          },
-           headerTitleContainerStyle: {
-            paddingVertical: 30, // adds vertical padding → taller header
-          },
-          headerTitleAlign: "center", // Optional: center the title
+          header : ({ back, navigation }) => {
+          return (
+            <View
+              style={{
+                height: 60, // adjust as needed
+                // backgroundColor: "gray",
+                // shadowColor: "#000",
+                // shadowOffset: { width: 0, height: 2 },
+                // shadowOpacity: 0.25,
+                // shadowRadius: 3.84,
+                // elevation: 4,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {back && (
+                  <TouchableOpacity
+                    onPress={navigation.goBack}
+                    style={{
+                      position: "absolute",
+                      left: 16,
+                      padding: 8,
+                    }}
+                  >
+                    <Ionicons name="arrow-back-outline" size={24} color="black" />
+                  </TouchableOpacity>
+                )}
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
+                  Select Your Entry
+                </Text>
+              </View>
+            </View>
+          );
+        },
+          // title: "Select Your Entry",
+          // headerStyle: {
+          //   height: 100,            // Set custom header height
+          //   backgroundColor: "#fff", // Optional: header background color
+          //   shadowColor: "#000",    // Optional: shadow color (iOS)
+          //   elevation: 4,           // Optional: shadow for Android
+          // },
+          // headerTitleStyle: {
+          //   fontSize: 24,           // Custom title font size
+          //   fontWeight: "bold",     // Custom title font weight
+          //   color: "#333",          // Custom title color
+          // },
+          //  headerTitleContainerStyle: {
+          //   paddingVertical: 30, // adds vertical padding → taller header
+          // },
+          // headerTitleAlign: "center", // Optional: center the title
         }}
       />
       <Stack.Screen 
@@ -719,58 +766,211 @@ export default function Entry() {
         component={MaterialModuleScreen} 
         // options={{ title: "Material Dispatch" }} 
         options={{
-          title: "Material ",
-          headerStyle: {
-            height: 100,            // Set custom header height
-            backgroundColor: "#fff", // Optional: header background color
-            shadowColor: "#000",    // Optional: shadow color (iOS)
-            elevation: 4,           // Optional: shadow for Android
-          },
-          headerTitleStyle: {
-            fontSize: 24,           // Custom title font size
-            fontWeight: "bold",     // Custom title font weight
-            color: "#333",          // Custom title color
-          },
-          headerTitleAlign: "center", // Optional: center the title
+          header : ({ back, navigation }) => {
+          return (
+            <View
+              style={{
+                height: 60, // adjust as needed
+                // backgroundColor: "gray",
+                // shadowColor: "#000",
+                // shadowOffset: { width: 0, height: 2 },
+                // shadowOpacity: 0.25,
+                // shadowRadius: 3.84,
+                // elevation: 4,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {back && (
+                  <TouchableOpacity
+                    onPress={navigation.goBack}
+                    style={{
+                      position: "absolute",
+                      left: 16,
+                      padding: 8,
+                    }}
+                  >
+                    <Ionicons name="arrow-back-outline" size={24} color="black" />
+                  </TouchableOpacity>
+                )}
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
+                  Material
+                </Text>
+              </View>
+            </View>
+          );
+        },
+          // title: "Select Your Entry",
+          // headerStyle: {
+          //   height: 100,            // Set custom header height
+          //   backgroundColor: "#fff", // Optional: header background color
+          //   shadowColor: "#000",    // Optional: shadow color (iOS)
+          //   elevation: 4,           // Optional: shadow for Android
+          // },
+          // headerTitleStyle: {
+          //   fontSize: 24,           // Custom title font size
+          //   fontWeight: "bold",     // Custom title font weight
+          //   color: "#333",          // Custom title color
+          // },
+          //  headerTitleContainerStyle: {
+          //   paddingVertical: 30, // adds vertical padding → taller header
+          // },
+          // headerTitleAlign: "center", // Optional: center the title
         }}
       />
       <Stack.Screen 
         name="ExpenseModule" 
         component={ExpenseModuleScreen} 
         // options={{ title: "Expense Entry" }} 
-        options={{
-          title: "Budget Expense Entry",
-          headerStyle: {
-            height: 100,            // Set custom header height
-            backgroundColor: "#fff", // Optional: header background color
-            shadowColor: "#000",    // Optional: shadow color (iOS)
-            elevation: 4,           // Optional: shadow for Android
-          },
-          headerTitleStyle: {
-            fontSize: 24,           // Custom title font size
-            fontWeight: "bold",     // Custom title font weight
-            color: "#333",          // Custom title color
-          },
-          headerTitleAlign: "center", // Optional: center the title
+       options={{
+          header : ({ back, navigation }) => {
+          return (
+            <View
+              style={{
+                height: 60, // adjust as needed
+                // backgroundColor: "gray",
+                // shadowColor: "#000",
+                // shadowOffset: { width: 0, height: 2 },
+                // shadowOpacity: 0.25,
+                // shadowRadius: 3.84,
+                // elevation: 4,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {back && (
+                  <TouchableOpacity
+                    onPress={navigation.goBack}
+                    style={{
+                      position: "absolute",
+                      left: 16,
+                      padding: 8,
+                    }}
+                  >
+                    <Ionicons name="arrow-back-outline" size={24} color="black" />
+                  </TouchableOpacity>
+                )}
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
+                  Budget Expense Entry
+                </Text>
+              </View>
+            </View>
+          );
+        },
+          // title: "Select Your Entry",
+          // headerStyle: {
+          //   height: 100,            // Set custom header height
+          //   backgroundColor: "#fff", // Optional: header background color
+          //   shadowColor: "#000",    // Optional: shadow color (iOS)
+          //   elevation: 4,           // Optional: shadow for Android
+          // },
+          // headerTitleStyle: {
+          //   fontSize: 24,           // Custom title font size
+          //   fontWeight: "bold",     // Custom title font weight
+          //   color: "#333",          // Custom title color
+          // },
+          //  headerTitleContainerStyle: {
+          //   paddingVertical: 30, // adds vertical padding → taller header
+          // },
+          // headerTitleAlign: "center", // Optional: center the title
         }}
       />
       <Stack.Screen 
         name="WorkModule" 
         component={WorkModuleScreen} 
         options={{
-          title: "Work Completion Entry",
-          headerStyle: {
-            height: 50,            // Set custom header height
-            backgroundColor: "#fff", // Optional: header background color
-            shadowColor: "#000",    // Optional: shadow color (iOS)
-            elevation: 4,           // Optional: shadow for Android
-          },
-          headerTitleStyle: {
-            fontSize: 24,           // Custom title font size
-            fontWeight: "bold",     // Custom title font weight
-            color: "#333",          // Custom title color
-          },
-          headerTitleAlign: "center", // Optional: center the title
+          header : ({ back, navigation }) => {
+          return (
+            <View
+              style={{
+                height: 60, // adjust as needed
+                // backgroundColor: "gray",
+                // shadowColor: "#000",
+                // shadowOffset: { width: 0, height: 2 },
+                // shadowOpacity: 0.25,
+                // shadowRadius: 3.84,
+                // elevation: 4,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {back && (
+                  <TouchableOpacity
+                    onPress={navigation.goBack}
+                    style={{
+                      position: "absolute",
+                      left: 16,
+                      padding: 8,
+                    }}
+                  >
+                    <Ionicons name="arrow-back-outline" size={24} color="black" />
+                  </TouchableOpacity>
+                )}
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
+                  Work Completion Entry
+                </Text>
+              </View>
+            </View>
+          );
+        },
+          // title: "Select Your Entry",
+          // headerStyle: {
+          //   height: 100,            // Set custom header height
+          //   backgroundColor: "#fff", // Optional: header background color
+          //   shadowColor: "#000",    // Optional: shadow color (iOS)
+          //   elevation: 4,           // Optional: shadow for Android
+          // },
+          // headerTitleStyle: {
+          //   fontSize: 24,           // Custom title font size
+          //   fontWeight: "bold",     // Custom title font weight
+          //   color: "#333",          // Custom title color
+          // },
+          //  headerTitleContainerStyle: {
+          //   paddingVertical: 30, // adds vertical padding → taller header
+          // },
+          // headerTitleAlign: "center", // Optional: center the title
         }}
       />
       <Stack.Screen 
@@ -778,19 +978,70 @@ export default function Entry() {
         component={LabourModuleScreen} 
         // options={{ title: "Labour Assignment" }} 
         options={{
-          title: "Labour Assignment",
-          headerStyle: {
-            height: 100,            // Set custom header height
-            backgroundColor: "#fff", // Optional: header background color
-            shadowColor: "#000",    // Optional: shadow color (iOS)
-            elevation: 4,           // Optional: shadow for Android
-          },
-          headerTitleStyle: {
-            fontSize: 24,           // Custom title font size
-            fontWeight: "bold",     // Custom title font weight
-            color: "#333",          // Custom title color
-          },
-          headerTitleAlign: "center", // Optional: center the title
+          header : ({ back, navigation }) => {
+          return (
+            <View
+              style={{
+                height: 60, // adjust as needed
+                // backgroundColor: "gray",
+                // shadowColor: "#000",
+                // shadowOffset: { width: 0, height: 2 },
+                // shadowOpacity: 0.25,
+                // shadowRadius: 3.84,
+                // elevation: 4,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {back && (
+                  <TouchableOpacity
+                    onPress={navigation.goBack}
+                    style={{
+                      position: "absolute",
+                      left: 16,
+                      padding: 8,
+                    }}
+                  >
+                    <Ionicons name="arrow-back-outline" size={24} color="black" />
+                  </TouchableOpacity>
+                )}
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
+                  Labour Assignment
+                </Text>
+              </View>
+            </View>
+          );
+        },
+          // title: "Select Your Entry",
+          // headerStyle: {
+          //   height: 100,            // Set custom header height
+          //   backgroundColor: "#fff", // Optional: header background color
+          //   shadowColor: "#000",    // Optional: shadow color (iOS)
+          //   elevation: 4,           // Optional: shadow for Android
+          // },
+          // headerTitleStyle: {
+          //   fontSize: 24,           // Custom title font size
+          //   fontWeight: "bold",     // Custom title font weight
+          //   color: "#333",          // Custom title color
+          // },
+          //  headerTitleContainerStyle: {
+          //   paddingVertical: 30, // adds vertical padding → taller header
+          // },
+          // headerTitleAlign: "center", // Optional: center the title
         }}
       />
     </Stack.Navigator>

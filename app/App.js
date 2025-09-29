@@ -341,12 +341,12 @@ function MainTabs({ navigation }) {
 }
 
 export default function App() {
-  useEffect(() => {
-  const backAction = () => true; // returning true = prevent back
-  const subscription = BackHandler.addEventListener("hardwareBackPress", backAction);
+//   useEffect(() => {
+//   const backAction = () => true; // returning true = prevent back
+//   const subscription = BackHandler.addEventListener("hardwareBackPress", backAction);
 
-  return () => subscription.remove();
-}, []);
+//   return () => subscription.remove();
+// }, []);
   return (
     <PaperProvider>
       <NavigationContainer>
