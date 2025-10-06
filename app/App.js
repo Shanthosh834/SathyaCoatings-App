@@ -1,7 +1,7 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./global.css";
 import { Button, PaperProvider } from "react-native-paper";
-
+// import Swiper from "react-native-web-swiper";
 import Work from "./components/WorkModules/Work";
 import Material from "./components/MaterialModules/MaterialDispatch";
 import { NavigationContainer } from "@react-navigation/native";
@@ -20,7 +20,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import "./assets/logo.png"
 import { useState, useEffect, useRef } from "react";
 import * as SecureStore from "expo-secure-store";
-import PagerView from 'react-native-pager-view';
+import PagerView from './PagerViewWrapper';
 import { BackHandler } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LabourAssign from "./components/Labour/LabourAssign";
@@ -29,6 +29,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Views from "./components/BottomNavigation/Views";
 import Remarks from "./components/BottomNavigation/Remarks";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { SelectionProvider } from "./SelectionContext";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -361,6 +362,7 @@ export default function App() {
 // }, []);
   return (
     <PaperProvider>
+      <SelectionProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false, gestureEnabled: false, }}>
           {/* Login First */}
@@ -375,6 +377,8 @@ export default function App() {
           <Stack.Screen name="Labour" component={LabourAssign}   options={{ gestureEnabled: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
+      </SelectionProvider>
     </PaperProvider>
+    
   );
 }

@@ -1686,10 +1686,6 @@
 
 
 //  part 2
-
-
-
-
 import { useState, useEffect, useMemo } from "react";
 import {
   View,
@@ -1835,7 +1831,7 @@ export default function Work() {
         }));
       } else {
         console.log("History fetch failed for", rec_id, res.data);
-      }
+       }
     } catch (err) {
       console.log(
         "Entries fetch error:",

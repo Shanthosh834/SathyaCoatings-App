@@ -19,6 +19,7 @@ import LabourAttendance from "../Labour/LabourAttendance";
 import Material from "../MaterialModules/MaterialDispatch";
 import ExpenseEntry from "../ExpenseModules/ExpenseEntry";
 import Work from "../WorkModules/Work";
+import { useSelection } from "../../SelectionContext";
 
 const API_CONFIG = {
   BASE_URL: "http://103.118.158.127/api",
@@ -282,6 +283,7 @@ const ModuleCard = ({ title, iconName, onPress }) => (
 // ===============================
 function EntryDropdownScreen() {
   const navigation = useNavigation();
+  const {setSelection} = useSelection();
 
   // State management
   const [state, setState] = useState({
@@ -330,7 +332,7 @@ function EntryDropdownScreen() {
       try {
         updateState({ loading: true });
         const companies = await apiService.fetchCompanies();
-        console.log('Companies fetched:', companies);
+        // console.log('Companies fetched:', companies);
         updateState({ companies });
       } catch (error) {
         const message = handleApiError(error, 'fetch companies');
@@ -550,6 +552,7 @@ function EntryDropdownScreen() {
             site: state.selectedSite,
             workDesc: item,
           };
+          setSelection(selection);
           updateState({ workDescModalVisible: false });
           navigation.navigate("ModuleSelection", { selection });
         }}

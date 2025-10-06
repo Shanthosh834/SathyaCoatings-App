@@ -16,13 +16,13 @@ export default function ViewMaterial({
   allDispatchedMaterials 
 }) {
   
-  console.log('ViewMaterial Props:', {
-    materialName,
-    item,
-    quantityAndRemarks,
-    selectedItemData,
-    allDispatchedMaterials
-  });
+  // console.log('ViewMaterial Props:', {
+  //   materialName,
+  //   item,
+  //   quantityAndRemarks,
+  //   selectedItemData,
+  //   allDispatchedMaterials
+  // });
 
   return (
     <Modal
