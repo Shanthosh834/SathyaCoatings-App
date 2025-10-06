@@ -18,7 +18,7 @@ import LoginPage from "./components/Profile/LoginPage";
 import ExpenseEntry from "./components/ExpenseModules/ExpenseEntry";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import "./assets/logo.png"
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, createRef } from "react";
 import * as SecureStore from "expo-secure-store";
 import PagerView from './PagerViewWrapper';
 import { BackHandler } from "react-native";
@@ -30,6 +30,10 @@ import Views from "./components/BottomNavigation/Views";
 import Remarks from "./components/BottomNavigation/Remarks";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SelectionProvider } from "./SelectionContext";
+// import { BackHandler } from "react-native";
+import { useNavigationState } from "@react-navigation/native";
+
+export const navigationRef = createRef();
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -354,17 +358,37 @@ function MainTabs({ navigation }) {
 }
 
 export default function App() {
-//   useEffect(() => {
-//   const backAction = () => true; // returning true = prevent back
-//   const subscription = BackHandler.addEventListener("hardwareBackPress", backAction);
+  useEffect(() => {
+  const backAction = () => {
+    const state = navigationRef.current?.getRootState();
 
-//   return () => subscription.remove();
-// }, []);
+    // If we are on the root screen (MainTabs), block exit
+    if (
+      state &&
+      state.routes[state.index].name === "MainTabs" &&
+      state.routes[state.index].state?.index === 0 // first tab
+    ) {
+      return true; // prevent app exit
+    }
+
+    // Otherwise allow back gestures/navigation inside screens
+    return false;
+  };
+
+  const subscription = BackHandler.addEventListener(
+    "hardwareBackPress",
+    backAction
+  );
+
+  return () => subscription.remove();
+}, []);
+
+
   return (
     <PaperProvider>
       <SelectionProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false, gestureEnabled: false, }}>
+      <NavigationContainer  ref={navigationRef}  >
+        <Stack.Navigator screenOptions={{ headerShown: false}}>
           {/* Login First */}
 
           {/* <Stack.Screen name="Login" component={LoginPage} /> */}

@@ -1944,41 +1944,6 @@ export default function Work() {
       {!dropdownsCollapsed && (
         <View style={{ margin: 10, padding: 8, paddingTop: 0, borderRadius: 8}} >
           
-
-          {/* Display selected values from Entry.js - Read-only */}
-          {/* <View style={{ marginBottom: 10, padding: 12, backgroundColor: "#f8f9fa", borderRadius: 8, borderWidth: 1, borderColor: "#e9ecef" }}>
-            <Text style={{ fontWeight: "600", marginBottom: 8, fontSize: 14, color: "#495057" }}>
-              Selected Work Details
-            </Text>
-            
-            <View style={{ marginBottom: 4 }}>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Company:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selection?.company?.company_name || "Not selected"}
-              </Text>
-            </View>
-            
-            <View style={{ marginBottom: 4 }}>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Project:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selection?.project?.project_name || "Not selected"}
-              </Text>
-            </View>
-            
-            <View style={{ marginBottom: 4 }}>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Site:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selection?.site?.site_name || "Not selected"}
-              </Text>
-            </View>
-            
-            <View>
-              <Text style={{ fontSize: 12, color: "#6c757d", fontWeight: "500" }}>Work Description:</Text>
-              <Text style={{ fontSize: 14, color: "#212529", marginLeft: 8 }}>
-                {selection?.workDesc?.desc_name || "Not selected"}
-              </Text>
-            </View>
-          </View> */}
           <View className="px-2 py-2 mb-4 bg-white rounded-xl border-[0.5px]">
                         {/* Grid container */}
                         <View className="flex-row flex-wrap">
@@ -2024,43 +1989,7 @@ export default function Work() {
                         </View>
                       </View>
 
-          <View style={{ marginBottom: 6, flexDirection: "row", alignItems: "center"}}>
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              style={{
-                borderWidth: 0.5,
-                // borderColor: "#ccc",
-                borderRadius: 6,
-                padding: 8,
-                backgroundColor: "#fff",
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Text className="p-1 tracking-wider text-md">
-                {selectedDate
-                  ? new Date(selectedDate).toLocaleDateString()
-                  : "Select Date"}
-              </Text>
-              <Ionicons name="calendar" size={20} color="#888" />
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate ? new Date(selectedDate) : new Date()}
-                mode="date"
-                display="default"
-                minimumDate={new Date()}
-                maximumDate={new Date()}
-                onChange={(event, date) => {
-                  setShowDatePicker(false);
-                  if (date) setSelectedDate(formatDate(date));
-                }}
-              />
-            )}
-          </View>
+          
 
 
 
@@ -2083,9 +2012,9 @@ export default function Work() {
             }
           /> */}
 
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 0 }}>
             {categories.length > 0 && (
-              <>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 4, marginBottom: 10 }}>
                   {categories.map((category, idx) => (
                     <TouchableOpacity
@@ -2105,7 +2034,44 @@ export default function Work() {
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
-              </>
+                <View style={{ marginBottom: 6, flexDirection: "row", alignItems: "center", width: 120}}>
+                  <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    style={{
+                      borderWidth: 0.5,
+                      // borderColor: "#ccc",
+                      borderRadius: 6,
+                      paddingHorizontal: 2,
+                      backgroundColor: "#fff",
+                      flex: 1,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text className="p-2 text-sm font-semibold tracking-wider">
+                      {selectedDate
+                        ? new Date(selectedDate).toLocaleDateString()
+                        : "Select Date"}
+                    </Text>
+                    <Ionicons name="calendar" size={20} color="#888" />
+                  </TouchableOpacity>
+
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={selectedDate ? new Date(selectedDate) : new Date()}
+                      mode="date"
+                      display="default"
+                      minimumDate={new Date()}
+                      maximumDate={new Date()}
+                      onChange={(event, date) => {
+                        setShowDatePicker(false);
+                        if (date) setSelectedDate(formatDate(date));
+                      }}
+                    />
+                  )}
+                </View>
+              </View>
             )}
           </View>
         </View>
