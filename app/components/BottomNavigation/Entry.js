@@ -14,8 +14,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
-import LabourAssign from "../Labour/LabourAssign";
 import LabourAttendance from "../Labour/LabourAttendance";
+import LabourAssign from "../Labour/LabourAssign";
 import Material from "../MaterialModules/MaterialDispatch";
 import ExpenseEntry from "../ExpenseModules/ExpenseEntry";
 import Work from "../WorkModules/Work";
@@ -28,7 +28,6 @@ const API_CONFIG = {
   RETRY_DELAY: 1000,
 };
 
-// Create axios instance with professional configuration
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
@@ -39,7 +38,6 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
     const timestamp = new Date().toISOString();
@@ -52,7 +50,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor with retry logic
 apiClient.interceptors.response.use(
   (response) => {
     const timestamp = new Date().toISOString();
@@ -68,7 +65,6 @@ apiClient.interceptors.response.use(
       data: error.response?.data,
     });
 
-    // Retry logic for network errors
     if (error.config && !error.config.__isRetryRequest) {
       error.config.__isRetryRequest = true;
       
@@ -91,7 +87,6 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Error handler utility
 const handleApiError = (error, context = '') => {
   const timestamp = new Date().toISOString();
   console.error(`[${timestamp}] Error in ${context}:`, {
@@ -143,9 +138,6 @@ const handleApiError = (error, context = '') => {
 
 const Stack = createNativeStackNavigator();
 
-// ===============================
-// Enhanced Dropdown Components
-// ===============================
 const DropdownButton = ({ label, value, onPress, disabled, type }) => {
   const getDisplayText = () => {
     if (!value) return `Select ${label}`;
@@ -255,37 +247,28 @@ const DropdownModal = ({ visible, onClose, data, onSelect, title, keyProp, type 
   );
 };
 
-// ===============================
-// Updated ModuleCard - Simplified without colors and tap button
-// ===============================
 const ModuleCard = ({ title, iconName, onPress }) => (
   <TouchableOpacity
     onPress={onPress}
     style={styles.moduleCard}
     activeOpacity={0.7}
   >
-    {/* Header */}
     <View style={styles.moduleCardHeader}>
       <Text style={styles.moduleCardTitle}>
         {title}
       </Text>
     </View>
 
-    {/* Icon */}
     <View style={styles.moduleCardIconContainer}>
       <Ionicons name={iconName} size={36} color="#6b7280" />
     </View>
   </TouchableOpacity>
 );
 
-// ===============================
-// Screen 1: Dropdown Selection
-// ===============================
 function EntryDropdownScreen() {
   const navigation = useNavigation();
   const {setSelection} = useSelection();
 
-  // State management
   const [state, setState] = useState({
     companies: [],
     projects: [],
@@ -296,19 +279,16 @@ function EntryDropdownScreen() {
     selectedSite: null,
     loading: false,
     refreshing: false,
-    // Modal visibility states
     companyModalVisible: false,
     projectModalVisible: false,
     siteModalVisible: false,
     workDescModalVisible: false,
   });
 
-  // State update helper
   const updateState = useCallback((updates) => {
     setState(prevState => ({ ...prevState, ...updates }));
   }, []);
 
-  // API service functions
   const apiService = {
     async fetchCompanies() {
       const response = await apiClient.get('/project/companies');
@@ -326,13 +306,11 @@ function EntryDropdownScreen() {
     },
   };
 
-  // Fetch companies on component mount
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
         updateState({ loading: true });
         const companies = await apiService.fetchCompanies();
-        // console.log('Companies fetched:', companies);
         updateState({ companies });
       } catch (error) {
         const message = handleApiError(error, 'fetch companies');
@@ -343,9 +321,8 @@ function EntryDropdownScreen() {
     };
 
     fetchCompanies();
-  }, [updateState]);
+  }, []);
 
-  // Update projects when company changes
   useEffect(() => {
     if (state.selectedCompany) {
       const fetchProjects = async () => {
@@ -353,7 +330,6 @@ function EntryDropdownScreen() {
           updateState({ loading: true });
           const allProjects = await apiService.fetchProjects();
           const filteredProjects = allProjects.filter(project => project.company_id === state.selectedCompany.company_id);
-          console.log('Filtered projects:', filteredProjects);
           updateState({ 
             projects: filteredProjects,
             selectedProject: null,
@@ -379,32 +355,28 @@ function EntryDropdownScreen() {
         workDescs: [],
       });
     }
-  }, [state.selectedCompany, updateState]);
+  }, [state.selectedCompany]);
 
-  // Update sites when project changes
   useEffect(() => {
     if (state.selectedProject) {
       const selectedProjectData = state.projects.find(
         project => project.project_id === state.selectedProject.project_id
       );
       
-      console.log('Selected project sites:', selectedProjectData?.sites);
       updateState({
         sites: selectedProjectData?.sites || [],
         selectedSite: null,
         workDescs: [],
       });
     }
-  }, [state.selectedProject, state.projects, updateState]);
+  }, [state.selectedProject, state.projects]);
 
-  // Fetch work descriptions when site is selected
   useEffect(() => {
     if (state.selectedSite) {
       const fetchWorkDescs = async () => {
         try {
           updateState({ loading: true });
           const workDescs = await apiService.fetchWorkDescriptions(state.selectedSite.site_id);
-          console.log('Work descriptions:', workDescs);
           updateState({ workDescs });
         } catch (error) {
           const message = handleApiError(error, 'fetch work descriptions');
@@ -416,9 +388,8 @@ function EntryDropdownScreen() {
 
       fetchWorkDescs();
     }
-  }, [state.selectedSite, updateState]);
+  }, [state.selectedSite]);
 
-  // Refresh handler
   const handleRefresh = useCallback(async () => {
     try {
       updateState({ refreshing: true });
@@ -430,7 +401,7 @@ function EntryDropdownScreen() {
     } finally {
       updateState({ refreshing: false });
     }
-  }, [updateState]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -479,7 +450,6 @@ function EntryDropdownScreen() {
             type="workDesc"
           />
 
-          {/* Loading Indicator */}
           {state.loading && (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color="#0f766e" />
@@ -489,7 +459,6 @@ function EntryDropdownScreen() {
         </View>
       </ScrollView>
 
-      {/* DROPDOWN MODALS */}
       <DropdownModal
         visible={state.companyModalVisible}
         onClose={() => updateState({ companyModalVisible: false })}
@@ -561,9 +530,6 @@ function EntryDropdownScreen() {
   );
 }
 
-// ===============================
-// Screen 2: Module Selection Cards
-// ===============================
 function ModuleSelectionScreen() {
   const route = useRoute();
   const navigation = useNavigation();
@@ -573,10 +539,6 @@ function ModuleSelectionScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.header}>
-          {/* <Text style={styles.title}>Choose Module</Text>
-          <Text style={styles.subtitle}>
-            Selected: {selection?.workDesc?.desc_name}
-          </Text> */}
         </View>
 
         <View style={styles.moduleGrid}>
@@ -598,7 +560,7 @@ function ModuleSelectionScreen() {
           <ModuleCard 
             title="Labour" 
             iconName="people-outline" 
-            onPress={() => navigation.navigate("LabourModule", { selection })} 
+            onPress={() => navigation.navigate("LabourAttendanceModule", { selection })} 
           />
         </View>
       </ScrollView>
@@ -606,9 +568,6 @@ function ModuleSelectionScreen() {
   );
 }
 
-// ===============================
-// Screen 3: Material Module
-// ===============================
 function MaterialModuleScreen() {
   const route = useRoute();
   const { selection } = route.params || {};
@@ -625,9 +584,6 @@ function MaterialModuleScreen() {
   );
 }
 
-// ===============================
-// Screen 4: Expense Module
-// ===============================
 function ExpenseModuleScreen() {
   const route = useRoute();
   const { selection } = route.params || {};
@@ -644,9 +600,6 @@ function ExpenseModuleScreen() {
   );
 }
 
-// ===============================
-// Screen 5: Work Module
-// ===============================
 function WorkModuleScreen() {
   const route = useRoute();
   const { selection } = route.params || {};
@@ -663,10 +616,23 @@ function WorkModuleScreen() {
   );
 }
 
-// ===============================
-// Screen 6: Labour Module
-// ===============================
-function LabourModuleScreen() {
+function LabourAttendanceScreen() {
+  const route = useRoute();
+  const { selection } = route.params || {};
+
+  return (
+    <View style={styles.container}>
+      <LabourAttendance 
+        route={{ params: { 
+          selection,
+          encodedUserId: 'dGVzdA==' 
+        }}} 
+      />
+    </View>
+  );
+}
+
+function LabourAssignmentScreen() {
   const route = useRoute();
   const { selection } = route.params || {};
 
@@ -682,20 +648,6 @@ function LabourModuleScreen() {
   );
 }
 
-// ===============================
-// Screen 7: Labour Attendance
-// ===============================
-function LabourAttendanceScreen() {
-  return (
-    <View style={styles.container}>
-      <LabourAttendance />
-    </View>
-  );
-}
-
-// ===============================
-// Main Export: Entry Stack
-// ===============================
 export default function Entry() {
   return (
     <Stack.Navigator>
@@ -710,11 +662,7 @@ export default function Entry() {
         options={{
           header: ({ back, navigation }) => {
             return (
-              <View
-                style={{
-                  height: 60,
-                }}
-              >
+              <View style={{ height: 60 }}>
                 <View
                   style={{
                     flex: 1,
@@ -758,11 +706,7 @@ export default function Entry() {
         options={{
           header: ({ back, navigation }) => {
             return (
-              <View
-                style={{
-                  height: 60,
-                }}
-              >
+              <View style={{ height: 60 }}>
                 <View
                   style={{
                     flex: 1,
@@ -806,11 +750,7 @@ export default function Entry() {
         options={{
           header: ({ back, navigation }) => {
             return (
-              <View
-                style={{
-                  height: 60,
-                }}
-              >
+              <View style={{ height: 60 }}>
                 <View
                   style={{
                     flex: 1,
@@ -854,11 +794,7 @@ export default function Entry() {
         options={{
           header: ({ back, navigation }) => {
             return (
-              <View
-                style={{
-                  height: 60,
-                }}
-              >
+              <View style={{ height: 60 }}>
                 <View
                   style={{
                     flex: 1,
@@ -897,64 +833,12 @@ export default function Entry() {
         }}
       />
       <Stack.Screen 
-        name="LabourModule" 
-        component={LabourModuleScreen} 
-        options={{
-          header: ({ back, navigation }) => {
-            return (
-              <View
-                style={{
-                  height: 60,
-                }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingHorizontal: 16,
-                  }}
-                >
-                  {back && (
-                    <TouchableOpacity
-                      onPress={navigation.goBack}
-                      style={{
-                        position: "absolute",
-                        left: 16,
-                        padding: 8,
-                      }}
-                    >
-                      <Ionicons name="arrow-back-outline" size={24} color="black" />
-                    </TouchableOpacity>
-                  )}
-                  <Text
-                    style={{
-                      fontSize: 24,
-                      fontWeight: "bold",
-                      color: "#333",
-                      textAlign: "center",
-                    }}
-                  >
-                    Labour Assignment
-                  </Text>
-                </View>
-              </View>
-            );
-          },
-        }}
-      />
-      <Stack.Screen 
-        name="LabourAttendance" 
+        name="LabourAttendanceModule" 
         component={LabourAttendanceScreen} 
         options={{
           header: ({ back, navigation }) => {
             return (
-              <View
-                style={{
-                  height: 60,
-                }}
-              >
+              <View style={{ height: 60 }}>
                 <View
                   style={{
                     flex: 1,
@@ -992,13 +876,54 @@ export default function Entry() {
           },
         }}
       />
+      <Stack.Screen 
+        name="LabourAssignmentModule" 
+        component={LabourAssignmentScreen} 
+        options={{
+          header: ({ back, navigation }) => {
+            return (
+              <View style={{ height: 60 }}>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
+                  }}
+                >
+                  {back && (
+                    <TouchableOpacity
+                      onPress={navigation.goBack}
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="arrow-back-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: "#333",
+                      textAlign: "center",
+                    }}
+                  >
+                    Labour Assignment
+                  </Text>
+                </View>
+              </View>
+            );
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
-// ===============================
-// Styles
-// ===============================
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1025,8 +950,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '400',
   },
-  
-  // DROPDOWN SECTION STYLES
   dropdownSection: {
     backgroundColor: 'white',
     paddingHorizontal: 16,
@@ -1039,8 +962,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  
-  // DROPDOWN BUTTON STYLES
   dropdownContainer: {
     marginBottom: 16,
   },
@@ -1090,8 +1011,6 @@ const styles = StyleSheet.create({
   dropdownDisabledText: {
     color: '#6b7280',
   },
-
-  // POPUP MODAL STYLES
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -1143,8 +1062,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#6b7280',
   },
-
-  // Loading Indicator
   loadingContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -1157,8 +1074,6 @@ const styles = StyleSheet.create({
     color: '#64748b',
     fontWeight: '500',
   },
-
-  // SIMPLIFIED MODULE CARD STYLES - No colors, no tap button
   moduleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

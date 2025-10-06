@@ -5,19 +5,20 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
 import LabourCard from './LabourCard';
 
-// API Configuration
 const API_CONFIG = {
   BASE_URL: "http://103.118.158.127/api",
   TIMEOUT: 15000,
 };
 
-// Create axios instance
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
@@ -28,13 +29,12 @@ const apiClient = axios.create({
   },
 });
 
-// Labour Attendance Page Component
-const LabourAttendance = () => {
+const LabourAttendance = ({ route }) => {
+  const { selection } = route?.params || {};
+  const navigation = useNavigation();
   const [labours, setLabours] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  
-  // Fetch labours from API
   useEffect(() => {
     const fetchLabours = async () => {
       try {
@@ -59,12 +59,19 @@ const LabourAttendance = () => {
 
   const handleLabourUsage = (labourId) => {
     console.log('Mark attendance clicked for labour ID:', labourId);
-    // Add your attendance marking logic here
   };
 
   const handleLabourView = (labourId) => {
     console.log('Labour view clicked for ID:', labourId);
-    // Add your view logic here
+  };
+
+  const handleNavigateToAssignment = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'LabourAssignmentModule',
+        params: { selection }
+      })
+    );
   };
 
   const renderLabourCard = ({ item }) => (
@@ -91,6 +98,40 @@ const LabourAttendance = () => {
 
   return (
     <View style={styles.container}>
+      {selection && (
+        <View style={styles.selectionSummary}>
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>COMPANY</Text>
+              <Text style={styles.summaryValue}>
+                {selection.company?.company_name || "—"}
+              </Text>
+            </View>
+
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>PROJECT</Text>
+              <Text style={styles.summaryValue}>
+                {selection.project?.project_name || "—"}
+              </Text>
+            </View>
+
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>SITE</Text>
+              <Text style={styles.summaryValue}>
+                {selection.site?.site_name || "—"}
+              </Text>
+            </View>
+
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>WORK</Text>
+              <Text style={styles.summaryValue}>
+                {selection.workDesc?.desc_name || "—"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
       {labours.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="people-outline" size={64} color="#9ca3af" />
@@ -108,6 +149,17 @@ const LabourAttendance = () => {
         />
       )}
 
+      <View style={styles.bottomButtonContainer}>
+        <TouchableOpacity
+          style={styles.assignmentButton}
+          onPress={handleNavigateToAssignment}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="clipboard-outline" size={20} color="white" />
+          <Text style={styles.assignmentButtonText}>Labour Assignment</Text>
+        </TouchableOpacity>
+      </View>
+
       <Toast />
     </View>
   );
@@ -120,9 +172,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f3f4f6',
   },
+  
+  selectionSummary: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 16,
+    marginHorizontal: 16,
+    marginTop: 8,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#9ca3af',
+  },
+  summaryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  summaryItem: {
+    width: '50%',
+    marginBottom: 8,
+    paddingRight: 8,
+  },
+  summaryLabel: {
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: '#6b7280',
+  },
+  summaryValue: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
   laboursList: {
     paddingHorizontal: 12,
     paddingVertical: 8,
+    paddingBottom: 100,
   },
   loadingContainer: {
     flex: 1,
@@ -154,5 +240,37 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     textAlign: 'center',
     lineHeight: 20,
+  },
+  bottomButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingBottom: 20,
+    backgroundColor: '#f3f4f6',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  assignmentButton: {
+    backgroundColor: '#0f766e',
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#0f766e',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  assignmentButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });

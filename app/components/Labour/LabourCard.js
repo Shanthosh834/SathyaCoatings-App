@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, View, Text, Modal, Platform, TextInput, ScrollView, Alert } from 'react-native';
+import { TouchableOpacity, View, Text, Modal, Platform, TextInput, ScrollView, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -27,14 +27,6 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
 
   const statusDisplay = getStatusDisplay(status);
 
-  const attendanceStatusOptions = [
-    { key: 'present', label: 'Present', icon: 'checkmark-circle', color: '#059669' },
-    { key: 'absent', label: 'Absent', icon: 'close-circle', color: '#dc2626' },
-    { key: 'late', label: 'Late', icon: 'time-outline', color: '#f59e0b' },
-    { key: 'on_leave', label: 'On Leave', icon: 'calendar-outline', color: '#d97706' },
-    { key: 'half_day', label: 'Half Day', icon: 'pause-circle', color: '#6366f1' },
-  ];
-
   const handleDateChange = (event, date) => {
     setShowDatePicker(false);
     if (date) {
@@ -56,11 +48,6 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
       return;
     }
 
-    if (!attendanceStatus) {
-      Alert.alert('Validation Error', 'Please select attendance status');
-      return;
-    }
-
     if (!remarks.trim()) {
       Alert.alert('Validation Error', 'Please enter remarks');
       return;
@@ -70,7 +57,7 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
       labourId: itemId,
       labourName: itemName,
       date: selectedDate.toISOString().split('T')[0],
-      shift: shiftValue, // Store as number
+      shift: shiftValue,
       status: attendanceStatus,
       remarks: remarks.trim(),
       timestamp: new Date().toISOString()
@@ -78,7 +65,6 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
     
     console.log(`Marking attendance for ${itemName} (ID: ${itemId}):`, attendanceData);
     
-    // Call the parent component's usage handler
     if (onUsage) {
       onUsage(attendanceData);
     }
@@ -117,12 +103,12 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
           shadowOpacity: 0.15,
           shadowRadius: 16,
           elevation: 8,
-          borderWidth: 2,
-          borderColor: '#e2e8f0',
+          borderWidth: 0.5,
+          borderColor: '#333',
           overflow: 'hidden'
         }}
       >
-        {/* Header */}
+        {/* Header - Show Labour ID */}
         <View style={{
           paddingHorizontal: 16,
           paddingVertical: 8,
@@ -134,10 +120,10 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
           elevation: 1,
         }}>
           <Text style={{
-            fontWeight: '600',
+            fontWeight: '900',
             textAlign: 'center',
             color: '#1f2937',
-            fontSize: 10,
+            fontSize: 12,
             letterSpacing: 0.5,
             textTransform: 'uppercase',
           }}>
@@ -145,28 +131,27 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
           </Text>
         </View>
 
-        {/* Card Content */}
+        {/* Card Content - Reduced padding */}
         <View style={{
           alignItems: 'center',
           justifyContent: 'center',
           paddingHorizontal: 8,
-          paddingVertical: 16,
-          backgroundColor: 'white',
+          paddingVertical: 12,
           marginHorizontal: 8,
           marginTop: 8,
           borderRadius: 16
         }}>
           {/* Labour Icon */}
-          <Ionicons name="person-outline" size={24} color="#1e7a6f" />
+          <Ionicons name="person-outline" size={30} color="#333333" />
           
           {/* Labour Name */}
           <Text style={{
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: '600',
             color: '#1f2937',
             textAlign: 'center',
-            marginTop: 8,
-            marginBottom: 4,
+            marginTop: 6,
+            marginBottom: 2,
           }}>
             {itemName || 'Unknown'}
           </Text>
@@ -174,10 +159,10 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
           {/* Phone Number */}
           {phone && (
             <Text style={{
-              fontSize: 12,
+              fontSize: 11,
               color: '#6b7280',
               textAlign: 'center',
-              marginBottom: 8,
+              marginBottom: 6,
             }}>
               {phone}
             </Text>
@@ -190,16 +175,16 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
             backgroundColor: statusDisplay.color + '20',
             borderRadius: 12,
             paddingHorizontal: 8,
-            paddingVertical: 4,
+            paddingVertical: 3,
           }}>
             <Ionicons 
               name={statusDisplay.icon} 
-              size={12} 
+              size={11} 
               color={statusDisplay.color} 
               style={{ marginRight: 4 }}
             />
             <Text style={{
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: '600',
               color: statusDisplay.color,
               textTransform: 'uppercase',
@@ -209,33 +194,32 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
           </View>
         </View>
 
-        {/* Footer */}
-        <View style={{ padding: 10 }}>
+        {/* Footer - Reduced padding */}
+        <View style={{ padding: 8 }}>
           <TouchableOpacity
             style={{
               paddingVertical: 8,
               borderRadius: 8,
+              backgroundColor: "#16786f",
               alignItems: "center",
               flexDirection: "row",
               justifyContent: "center",
-              borderWidth: 1,
-              borderColor: "#1e7a6f",
             }}
             onPress={() => setShowAttendanceModal(true)}
           >
             <Ionicons
               name="create-outline"
-              size={16}
-              color="#1e7a6f"
+              size={18}
+              color="#fff"
               style={{ marginRight: 6 }}
             />
             <Text style={{
-              fontSize: 12,
+              fontSize: 16,
               fontWeight: "600",
               textAlign: "center",
-              color: "#1e7a6f"
+              color: "#fff"
             }}>
-              Mark Attendance
+              Usage
             </Text>
           </TouchableOpacity>
         </View>
@@ -248,84 +232,31 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
         animationType="slide"
         onRequestClose={() => setShowAttendanceModal(false)}
       >
-        <View style={{
-          flex: 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingHorizontal: 20,
-        }}>
-          <View style={{
-            backgroundColor: 'white',
-            borderRadius: 16,
-            padding: 20,
-            width: '100%',
-            maxWidth: 400,
-            maxHeight: '90%',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 10 },
-            shadowOpacity: 0.25,
-            shadowRadius: 20,
-            elevation: 10,
-          }}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
               {/* Modal Header */}
-              <View style={{
-                alignItems: 'center',
-                marginBottom: 20,
-                paddingBottom: 15,
-                borderBottomWidth: 1,
-                borderBottomColor: '#e5e7eb',
-              }}>
-                <Ionicons name="clipboard-outline" size={32} color="#1e7a6f" />
-                <Text style={{
-                  fontSize: 18,
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  marginTop: 8,
-                  textAlign: 'center',
-                }}>
+              <View style={styles.modalHeader}>
+                <Ionicons name="clipboard-outline" size={32} color="#16786f" />
+                <Text style={styles.modalTitle}>
                   Mark Attendance
                 </Text>
-                <Text style={{
-                  fontSize: 14,
-                  color: '#6b7280',
-                  marginTop: 4,
-                  textAlign: 'center',
-                }}>
+                <Text style={styles.modalSubtitle}>
                   {itemName} (ID: {itemId})
                 </Text>
               </View>
 
               {/* Date Selection */}
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: 8,
-                }}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>
                   Attendance Date
                 </Text>
                 <TouchableOpacity
                   onPress={() => setShowDatePicker(true)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                    borderRadius: 8,
-                    backgroundColor: '#f9fafb',
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                  }}
+                  style={styles.datePickerButton}
                 >
                   <Ionicons name="calendar-outline" size={20} color="#6b7280" style={{ marginRight: 12 }} />
-                  <Text style={{
-                    fontSize: 16,
-                    color: '#1f2937',
-                    flex: 1,
-                  }}>
+                  <Text style={styles.datePickerText}>
                     {selectedDate.toLocaleDateString()}
                   </Text>
                   <Ionicons name="chevron-down" size={20} color="#6b7280" />
@@ -342,176 +273,31 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
                 />
               )}
 
-              {/* Previous Total Shifts (Read-only) */}
-              {/* <View style={{ marginBottom: 20 }}>
-                <Text style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: 8,
-                }}>
-                  Previous Total Shift Hours
-                </Text>
-                <View style={{
-                  borderWidth: 1,
-                  borderColor: '#e5e7eb',
-                  borderRadius: 8,
-                  paddingHorizontal: 16,
-                  paddingVertical: 12,
-                  backgroundColor: '#f9fafb',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Ionicons name="time-outline" size={20} color="#6b7280" style={{ marginRight: 8 }} />
-                    <Text style={{
-                      fontSize: 16,
-                      fontWeight: '600',
-                      color: '#1f2937',
-                    }}>
-                      Total: {totalShifts} hours
-                    </Text>
-                  </View>
-                  <View style={{
-                    backgroundColor: '#e5e7eb',
-                    borderRadius: 12,
-                    paddingHorizontal: 8,
-                    paddingVertical: 2,
-                  }}>
-                    <Text style={{
-                      fontSize: 10,
-                      color: '#6b7280',
-                      fontWeight: '500',
-                      textTransform: 'uppercase',
-                    }}>
-                      Read Only
-                    </Text>
-                  </View>
-                </View>
-                <Text style={{
-                  fontSize: 12,
-                  color: '#6b7280',
-                  marginTop: 4,
-                  fontStyle: 'italic',
-                }}>
-                  Cumulative hours worked from all previous attendance records
-                </Text>
-              </View> */}
-
               {/* Numeric Shift Input */}
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: 8,
-                }}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>
                   Shift Hours <Text style={{ color: '#dc2626' }}>*</Text>
                 </Text>
                 <TextInput
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                    borderRadius: 8,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    fontSize: 16,
-                    backgroundColor: '#f9fafb',
-                    color: '#1f2937',
-                    textAlign: 'center',
-                  }}
+                  style={styles.input}
                   placeholder="Enter shift hours (e.g., 1, 2, 1.5)"
                   placeholderTextColor="#9ca3af"
                   value={selectedShift}
                   onChangeText={setSelectedShift}
                   keyboardType="numeric"
                 />
-                <Text style={{
-                  fontSize: 12,
-                  color: '#6b7280',
-                  marginTop: 4,
-                  textAlign: 'center',
-                  fontStyle: 'italic',
-                }}>
+                <Text style={styles.inputHint}>
                   Examples: 1, 2, 1.5, 0.5 (hours worked)
                 </Text>
               </View>
 
-              {/* Attendance Status Selection */}
-              {/* <View style={{ marginBottom: 20 }}>
-                <Text style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: 12,
-                }}>
-                  Attendance Status <Text style={{ color: '#dc2626' }}>*</Text>
-                </Text>
-                <View style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: 8,
-                }}>
-                  {attendanceStatusOptions.map((option) => (
-                    <TouchableOpacity
-                      key={option.key}
-                      onPress={() => setAttendanceStatus(option.key)}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        borderRadius: 20,
-                        backgroundColor: attendanceStatus === option.key ? option.color + '20' : '#f9fafb',
-                        borderWidth: attendanceStatus === option.key ? 2 : 1,
-                        borderColor: attendanceStatus === option.key ? option.color : '#e5e7eb',
-                        minWidth: '45%',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Ionicons 
-                        name={option.icon} 
-                        size={14} 
-                        color={option.color}
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={{
-                        fontSize: 12,
-                        fontWeight: attendanceStatus === option.key ? '600' : '400',
-                        color: attendanceStatus === option.key ? option.color : '#374151',
-                      }}>
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View> */}
-
               {/* Remarks Input */}
-              <View style={{ marginBottom: 30 }}>
-                <Text style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: 8,
-                }}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>
                   Remarks <Text style={{ color: '#dc2626' }}>*</Text>
                 </Text>
                 <TextInput
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                    borderRadius: 8,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    fontSize: 14,
-                    backgroundColor: '#f9fafb',
-                    color: '#1f2937',
-                    height: 80,
-                    textAlignVertical: 'top',
-                    marginBottom: 10,
-                  }}
+                  style={[styles.input, styles.textArea]}
                   placeholder="Enter attendance remarks, notes, or any special observations..."
                   placeholderTextColor="#9ca3af"
                   value={remarks}
@@ -521,120 +307,55 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
                 />
               </View>
 
-              {/* Action Buttons - Professional Layout */}
-              <View style={{ marginTop: 20 }}>
+              {/* Action Buttons */}
+              <View style={styles.buttonContainer}>
                 {/* Secondary Actions Row */}
-                <View style={{
-                  flexDirection: 'row',
-                  marginBottom: 15,
-                  gap: 15,
-                }}>
+                <View style={styles.secondaryButtonRow}>
                   <TouchableOpacity
                     onPress={clearForm}
-                    style={{
-                      flex: 1,
-                      paddingVertical: 12,
-                      paddingHorizontal: 20,
-                      borderRadius: 12,
-                      backgroundColor: 'transparent',
-                      borderWidth: 1.5,
-                      borderColor: '#e2e8f0',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    style={styles.secondaryButton}
                   >
-                    <View style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                      <Ionicons 
-                        name="refresh-outline" 
-                        size={16} 
-                        color="#64748b" 
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={{
-                        fontSize: 14,
-                        fontWeight: '500',
-                        color: '#64748b',
-                      }}>
-                        Clear
-                      </Text>
-                    </View>
+                    <Ionicons 
+                      name="refresh-outline" 
+                      size={16} 
+                      color="#64748b" 
+                      style={{ marginRight: 6 }}
+                    />
+                    <Text style={styles.secondaryButtonText}>
+                      Clear
+                    </Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     onPress={() => setShowAttendanceModal(false)}
-                    style={{
-                      flex: 1,
-                      paddingVertical: 12,
-                      paddingHorizontal: 20,
-                      borderRadius: 12,
-                      backgroundColor: 'transparent',
-                      borderWidth: 1.5,
-                      borderColor: '#e2e8f0',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    style={styles.secondaryButton}
                   >
-                    <View style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                      <Ionicons 
-                        name="close-outline" 
-                        size={16} 
-                        color="#64748b" 
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={{
-                        fontSize: 14,
-                        fontWeight: '500',
-                        color: '#64748b',
-                      }}>
-                        Cancel
-                      </Text>
-                    </View>
+                    <Ionicons 
+                      name="close-outline" 
+                      size={16} 
+                      color="#64748b" 
+                      style={{ marginRight: 6 }}
+                    />
+                    <Text style={styles.secondaryButtonText}>
+                      Cancel
+                    </Text>
                   </TouchableOpacity>
                 </View>
 
                 {/* Primary Action */}
                 <TouchableOpacity
                   onPress={handleAttendanceSubmit}
-                  style={{
-                    width: '100%',
-                    paddingVertical: 16,
-                    paddingHorizontal: 24,
-                    borderRadius: 12,
-                    backgroundColor: '#1e7a6f',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    shadowColor: '#1e7a6f',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 12,
-                    elevation: 4,
-                  }}
+                  style={styles.submitButton}
                 >
-                  <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                    <Ionicons 
-                      name="checkmark-circle" 
-                      size={18} 
-                      color="white" 
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text style={{
-                      fontSize: 16,
-                      fontWeight: '600',
-                      color: 'white',
-                      letterSpacing: 0.5,
-                    }}>
-                      Mark Attendance
-                    </Text>
-                  </View>
+                  <Ionicons 
+                    name="checkmark-circle" 
+                    size={18} 
+                    color="white" 
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text style={styles.submitButtonText}>
+                    Mark Attendance
+                  </Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -644,5 +365,142 @@ const LabourCard = ({ itemId, onView, itemName, phone, status, onUsage, totalShi
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#1f2937',
+    flex: 1,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: '#f9fafb',
+    color: '#1f2937',
+    textAlign: 'center',
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+    textAlign: 'left',
+  },
+  inputHint: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 4,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  buttonContainer: {
+    marginTop: 20,
+  },
+  secondaryButtonRow: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    gap: 15,
+  },
+  secondaryButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  secondaryButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748b',
+  },
+  submitButton: {
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#16786f',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#16786f',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
+    flexDirection: 'row',
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    letterSpacing: 0.5,
+  },
+});
 
 export default LabourCard;

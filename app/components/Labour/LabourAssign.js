@@ -13,9 +13,7 @@ import axios from "axios";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 
-// API Configuration
 const API_CONFIG = {
   BASE_URL: "http://103.118.158.127/api",
   TIMEOUT: 15000,
@@ -144,7 +142,6 @@ const apiService = {
 };
 
 export default function LabourAssign({ route }) {
-  const navigation = useNavigation();
   const { selection, encodedUserId } = route?.params || {};
   
   useEffect(() => {
@@ -346,15 +343,6 @@ export default function LabourAssign({ route }) {
     }
   }, [updateState]);
 
-  const navigateToAttendance = useCallback(() => {
-    navigation.navigate('LabourAttendance', {
-      selectedLabours: state.selectedLabours,
-      laboursData: state.labours,
-      selection: selection,
-      encodedUserId: encodedUserId
-    });
-  }, [navigation, state.selectedLabours, state.labours, selection, encodedUserId]);
-
   if (!selection || !selection.company || !selection.project || !selection.site || !selection.workDesc) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -376,10 +364,8 @@ export default function LabourAssign({ route }) {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* SELECTION SUMMARY*/}
-        <View className="px-4 py-2 mb-4 mx-4 bg-white rounded-lg border border-gray-400">
+        <View style={styles.selectionBox}>
           <View className="flex-row flex-wrap">
-            {/* Company */}
             <View className="w-1/2 mb-2 pr-2">
               <Text className="text-[10px] uppercase tracking-wide text-gray-500">
                 COMPANY
@@ -389,7 +375,6 @@ export default function LabourAssign({ route }) {
               </Text>
             </View>
 
-            {/* Project */}
             <View className="w-1/2 mb-2 pl-2">
               <Text className="text-[10px] uppercase tracking-wide text-gray-500">
                 PROJECT
@@ -399,7 +384,6 @@ export default function LabourAssign({ route }) {
               </Text>
             </View>
 
-            {/* Site */}
             <View className="w-1/2 pr-2">
               <Text className="text-[10px] uppercase tracking-wide text-gray-500">
                 SITE
@@ -409,7 +393,6 @@ export default function LabourAssign({ route }) {
               </Text>
             </View>
 
-            {/* Work */}
             <View className="w-1/2 pl-2">
               <Text className="text-[10px] uppercase tracking-wide text-gray-500">
                 WORK
@@ -421,15 +404,12 @@ export default function LabourAssign({ route }) {
           </View>
         </View>
 
-        {/* MAIN FORM CONTENT */}
         <View style={styles.form}>
-          {/* Labour Selection */}
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>
               Labours <Text style={styles.required}>*</Text>
             </Text>
             
-            {/* Available Labours */}
             {state.labours.length > 0 && (
               <ScrollView style={styles.laboursList} nestedScrollEnabled>
                 {state.labours
@@ -449,7 +429,6 @@ export default function LabourAssign({ route }) {
               </ScrollView>
             )}
 
-            {/* Selected Labours Display */}
             {state.selectedLabours.length > 0 && (
               <View style={styles.selectedContainer}>
                 <Text style={styles.selectedTitle}>
@@ -481,7 +460,6 @@ export default function LabourAssign({ route }) {
             )}
           </View>
 
-          {/* Date Selection */}
           <View style={styles.dateContainer}>
             <View style={styles.dateField}>
               <Text style={styles.label}>
@@ -514,7 +492,6 @@ export default function LabourAssign({ route }) {
             </View>
           </View>
 
-          {/* Date Pickers */}
           {state.showFromPicker && (
             <DateTimePicker
               value={state.fromDate}
@@ -534,7 +511,6 @@ export default function LabourAssign({ route }) {
             />
           )}
 
-          {/* Loading Indicator */}
           {state.loading && (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color="#0f766e" />
@@ -542,7 +518,6 @@ export default function LabourAssign({ route }) {
             </View>
           )}
 
-          {/* Save Button */}
           <TouchableOpacity
             style={[
               styles.saveButton,
@@ -560,20 +535,6 @@ export default function LabourAssign({ route }) {
               )}
               <Text style={styles.saveButtonText}>
                 {state.submitting ? 'Saving...' : 'Save Assignment'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Labour Attendance Button */}
-          <TouchableOpacity
-            style={styles.attendanceButton}
-            onPress={navigateToAttendance}
-            activeOpacity={0.8}
-          >
-            <View style={styles.buttonContent}>
-              <Ionicons name="people" size={18} color="white" />
-              <Text style={styles.attendanceButtonText}>
-                Labour Attendance
               </Text>
             </View>
           </TouchableOpacity>
@@ -597,7 +558,20 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingVertical: 12,
-    paddingHorizontal: 12,
+  },
+  selectionBox: {
+    backgroundColor: 'white',
+    marginHorizontal: 12,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: 'grey',
+    shadowColor: 'grey',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   errorTitle: {
     fontSize: 20,
@@ -613,13 +587,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
   },
-  
   form: {
     backgroundColor: 'white',
-    marginHorizontal: 4,
+    marginHorizontal: 12,
     borderRadius: 12,
-    padding: 18,
-    shadowColor: '#000',
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: 'grey',
+    shadowColor: 'grey',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -762,29 +737,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     elevation: 2,
   },
-  attendanceButton: {
-    backgroundColor: '#0369a1',
-    borderRadius: 8,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    shadowColor: '#0369a1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
   buttonContent: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   saveButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  attendanceButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
