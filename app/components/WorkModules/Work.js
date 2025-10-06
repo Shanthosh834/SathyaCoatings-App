@@ -1943,43 +1943,7 @@ export default function Work() {
     <>
       {!dropdownsCollapsed && (
         <View style={{ margin: 10, padding: 8, paddingTop: 0, borderRadius: 8}} >
-          <View style={{ marginBottom: 6, flexDirection: "row", alignItems: "center"}}>
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              style={{
-                borderWidth: 0.5,
-                // borderColor: "#ccc",
-                borderRadius: 6,
-                padding: 8,
-                backgroundColor: "#fff",
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Text className="p-1 tracking-wider text-md">
-                {selectedDate
-                  ? new Date(selectedDate).toLocaleDateString()
-                  : "Select Date"}
-              </Text>
-              <Ionicons name="calendar" size={20} color="#888" />
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate ? new Date(selectedDate) : new Date()}
-                mode="date"
-                display="default"
-                minimumDate={new Date()}
-                maximumDate={new Date()}
-                onChange={(event, date) => {
-                  setShowDatePicker(false);
-                  if (date) setSelectedDate(formatDate(date));
-                }}
-              />
-            )}
-          </View>
+          
 
           {/* Display selected values from Entry.js - Read-only */}
           {/* <View style={{ marginBottom: 10, padding: 12, backgroundColor: "#f8f9fa", borderRadius: 8, borderWidth: 1, borderColor: "#e9ecef" }}>
@@ -2059,6 +2023,44 @@ export default function Work() {
                           </View>
                         </View>
                       </View>
+
+          <View style={{ marginBottom: 6, flexDirection: "row", alignItems: "center"}}>
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              style={{
+                borderWidth: 0.5,
+                // borderColor: "#ccc",
+                borderRadius: 6,
+                padding: 8,
+                backgroundColor: "#fff",
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text className="p-1 tracking-wider text-md">
+                {selectedDate
+                  ? new Date(selectedDate).toLocaleDateString()
+                  : "Select Date"}
+              </Text>
+              <Ionicons name="calendar" size={20} color="#888" />
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate ? new Date(selectedDate) : new Date()}
+                mode="date"
+                display="default"
+                minimumDate={new Date()}
+                maximumDate={new Date()}
+                onChange={(event, date) => {
+                  setShowDatePicker(false);
+                  if (date) setSelectedDate(formatDate(date));
+                }}
+              />
+            )}
+          </View>
 
 
 

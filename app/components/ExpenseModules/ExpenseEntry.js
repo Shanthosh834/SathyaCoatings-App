@@ -15,7 +15,8 @@ import axios from "axios";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
-
+import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get('window');
 
@@ -119,14 +120,17 @@ const ProductCard = ({ budget, onUsagePress }) => {
       </View>
       
       <View style={styles.productCardIcon}>
-        <Ionicons name="document-text-outline" size={40} color="#0891b2" />
+        {/* <Ionicons name="document-text-outline" size={40} color="#0891b2" /> */}
+        {/* Rupee Note Icon */}
+        <MaterialCommunityIcons name="currency-inr" size={36} color="#2E7D32" />
+      
       </View>
       
       <TouchableOpacity
         onPress={() => onUsagePress(budget)}
         style={styles.usageButton}
       >
-        <Ionicons name="create-outline" size={16} color="#0891b2" style={styles.usageIcon} />
+        <Ionicons name="create-outline" size={18} color="#fff" style={styles.usageIcon} />
         <Text style={styles.usageButtonText}>Usage</Text>
       </TouchableOpacity>
     </View>
@@ -251,10 +255,10 @@ const BudgetDetailCard = ({ budget, expenseDetails, expenseInputs, handleInputCh
 
 // Selection Info Header Component
 const SelectionInfoHeader = ({ selection }) => (
-  <View className="px-4 py-2 mb-4 mx-4 bg-white rounded-lg border border-gray-400">
+  <View className="px-4 py-2 mx-4 mb-4 bg-white border border-gray-400 rounded-lg">
     <View className="flex-row flex-wrap">
       {/* Company */}
-      <View className="w-1/2 mb-2 pr-2">
+      <View className="w-1/2 pr-2 mb-2">
         <Text className="text-[10px] uppercase tracking-wide text-gray-500">
           COMPANY
         </Text>
@@ -264,7 +268,7 @@ const SelectionInfoHeader = ({ selection }) => (
       </View>
 
       {/* Project */}
-      <View className="w-1/2 mb-2 pl-2">
+      <View className="w-1/2 pl-2 mb-2">
         <Text className="text-[10px] uppercase tracking-wide text-gray-500">
           PROJECT
         </Text>
@@ -702,56 +706,77 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   productCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    marginHorizontal: 8,
-    width: (width / 2) - 50, 
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    alignItems: 'center',
+    width: '48%',
+        marginBottom: 20,
+        marginHorizontal: '1%',
+        borderRadius: 8,
+        backgroundColor: '#f8fafc',
+        shadowColor: '#6366f1',
+        shadowOffset: {
+          width: 0,
+          height: 8,
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+        elevation: 8,
+        borderWidth: 0.5,
+        borderColor: '#333',
+        overflow: 'hidden'
   },
   productCardHeader: {
-    width: '100%',
-    marginBottom: 16,
+    paddingHorizontal: 16,
+      paddingVertical: 8,
+      backgroundColor: '#f8fafc',
+      position: 'relative',
+      height: 48,
+      borderBottomWidth: 1,
+      borderColor: "#ccc",
+      // shadowColor: '#000',
+      // shadowOffset: {
+      //   width: 0,
+      //   height: 2,
+      // },
+      // shadowOpacity: 0.1,
+      // shadowRadius: 3,
+      elevation: 1,
   },
   productCardTitle: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#1f2937',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontWeight: '900',
+        textAlign: 'center',
+        color: '#1f2937',
+        fontSize: 12,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+        
   },
   productCardIcon: {
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: '#f0f9ff',
-    borderRadius: 50,
+    alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 16,
+        // backgroundColor: 'white',
+        marginHorizontal: 8,
+        marginTop: 8,
+        borderRadius: 16
   },
   usageButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#0891b2',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    width: '100%',
+     paddingVertical: 10,
+    borderRadius: 8,
+    // backgroundColor: "#1e7a6f",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: "#16786f",
+    margin: 8
   },
   usageIcon: {
     marginRight: 6,
   },
   usageButtonText: {
-    color: '#0891b2',
-    fontSize: 14,
-    fontWeight: '500',
+     fontSize: 16,
+      fontWeight: "600",
+      textAlign: "center",
+      color: "#fff"
   },
   productGrid: {
     flexDirection: 'row',

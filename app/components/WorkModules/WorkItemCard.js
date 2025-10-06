@@ -42,9 +42,9 @@ export default function WorkItemCard({
   return (
     <View
       style={{
-        backgroundColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#e5e7eb",
+        backgroundColor: '#f8fafc',
+        borderWidth: 0.5,
+        borderColor: '#333',
         borderRadius: 10,
         padding: 12,
         marginBottom: 12,
@@ -62,7 +62,9 @@ export default function WorkItemCard({
           fontSize: 16,
           color: "#167a6f",
           textAlign: "center",
-          padding: 6,
+          // padding: 6,
+          
+          
         }}
       >
         {item.subcategory_name}

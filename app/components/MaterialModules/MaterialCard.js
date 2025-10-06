@@ -3,7 +3,7 @@ import { TouchableOpacity, View, Text, Image, TextInput } from 'react-native';
 import { Button, Modal } from 'react-native-paper'; // Better styled than RN Button
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 const MaterialCard = ({ itemId, onView, onUpdate, image, itemName, onUsage }) => {
   return (
     
@@ -38,13 +38,6 @@ const MaterialCard = ({ itemId, onView, onUpdate, image, itemName, onUsage }) =>
       height: 48,
       borderBottomWidth: 1,
       borderColor: "#ccc",
-      // shadowColor: '#000',
-      // shadowOffset: {
-      //   width: 0,
-      //   height: 2,
-      // },
-      // shadowOpacity: 0.1,
-      // shadowRadius: 3,
       elevation: 1,
     }}>
 
@@ -56,7 +49,6 @@ const MaterialCard = ({ itemId, onView, onUpdate, image, itemName, onUsage }) =>
         letterSpacing: 0.5,
         textTransform: 'uppercase',
       }}>
-        {/* Item {itemId} */}
         {itemName}
       </Text>
     </View>
@@ -67,24 +59,13 @@ const MaterialCard = ({ itemId, onView, onUpdate, image, itemName, onUsage }) =>
         justifyContent: 'center',
         paddingHorizontal: 8,
         paddingVertical: 16,
-        backgroundColor: 'white',
+        // backgroundColor: 'white',
         marginHorizontal: 8,
         marginTop: 8,
         borderRadius: 16
       }}>
-        {/* <Image
-          source={{
-            uri: image
-          }}
-          style={{
-            width: '100%',
-            height: 60,
-            borderRadius: 8
-          }}
-          resizeMode="contain"
-        /> */}
         
-        <Ionicons name="document-text-outline" size={18} color="#1e7a6f" />
+        <MaterialIcons name="inventory" size={30} color="#333333" />
       </View>
 
       {/* Footer */}
