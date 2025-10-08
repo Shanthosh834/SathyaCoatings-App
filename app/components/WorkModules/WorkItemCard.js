@@ -9,14 +9,16 @@ const isCompleted = (r) =>
 
 export default function WorkItemCard({
   item,
-  selectedDate, // "YYYY-MM-DD"
-  displayData, // { cumulative_area, entries: [] }
+  selectedDate,
+  displayData,
   newWorkData,
   onChange,
   onSubmit,
   submitting,
-  materials,   // 👈 from Work.js
-  site,        // 👈 from Work.js
+  materials,   
+  site,  
+  newRemarksData,
+  onRemarksChange
 }) {
   const [showModal, setShowModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
@@ -27,17 +29,15 @@ export default function WorkItemCard({
     [displayData.cumulative_area, rate]
   );
 
-  // Filter related materials
   const relatedMaterials = useMemo(() => {
-  if (!materials || !Array.isArray(materials)) return [];
-  return materials.filter(
-    (m) =>
-      m.site_id === item.site_id &&
-      m.pd_id === item.po_number &&
-      m.item_name === item.subcategory_name
-  );
-}, [materials, item]);
-
+    if (!materials || !Array.isArray(materials)) return [];
+    return materials.filter(
+      (m) =>
+        m.site_id === item.site_id &&
+        m.pd_id === item.po_number &&
+        m.item_name === item.subcategory_name
+    );
+  }, [materials, item]);
 
   return (
     <View
@@ -62,9 +62,6 @@ export default function WorkItemCard({
           fontSize: 16,
           color: "#167a6f",
           textAlign: "center",
-          // padding: 6,
-          
-          
         }}
       >
         {item.subcategory_name}
@@ -199,25 +196,6 @@ export default function WorkItemCard({
         </TouchableOpacity>
       )}
 
-      {/* Material Usage Button */}
-      {/* <TouchableOpacity
-        onPress={() => setShowMaterialModal(true)}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: 8,
-          alignItems: "center",
-          flexDirection: "row",
-          justifyContent: "center",
-          marginTop: 5,
-          borderWidth: 1,
-          borderColor: "#167a6f",
-        }}
-      >
-        <Entypo name="tools" size={16} style={{ marginRight: 6 }} />
-        <Text style={{ fontWeight: "600", fontSize: 12 }}>Material Usage</Text>
-      </TouchableOpacity> */}
-
       {/* Update Modal */}
       <Modal visible={showModal} transparent animationType="fade">
         <View
@@ -249,43 +227,29 @@ export default function WorkItemCard({
             </Text>
 
             <Text className="mb-1 text-sm font-medium text-gray-600">
-                        Enter Work Area
-                      </Text>
+              Enter Work Area
+            </Text>
                      
             <TextInput
               keyboardType="numeric"
               value={String(newWorkData[item.rec_id] ?? "")}
               onChangeText={(t) => onChange(item.rec_id, t)}
               placeholder="new work area"
-              // style={{
-              //   borderWidth: 1,
-              //   borderColor: "#d1d5db",
-              //   borderRadius: 8,
-              //   paddingHorizontal: 10,
-              //   paddingVertical: 8,
-              //   marginBottom: 16,
-              // }}
               className="p-3 mb-3 bg-white border border-gray-400 rounded-lg"
             />
 
             <Text className="mb-1 text-sm font-medium text-gray-600">
-                        Remarks
-                      </Text>
+              Remarks
+            </Text>
 
             <TextInput
-              keyboardType="numeric"
-              // value={""}
-              placeholder="remarks"
-              // style={{
-              //   borderWidth: 1,
-              //   borderColor: "#d1d5db",
-              //   borderRadius: 8,
-              //   paddingHorizontal: 10,
-              //   paddingVertical: 8,
-              //   marginBottom: 16,
-              // }}
+              keyboardType="default"
+              value={String(newRemarksData?.[item.rec_id] ?? "")}
+              onChangeText={(t) => onRemarksChange(item.rec_id, t)}
+              placeholder="Remarks (required)"
               className="p-3 mb-3 bg-white border border-gray-400 rounded-lg"
             />
+
             <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
               <TouchableOpacity
                 onPress={() => setShowModal(false)}
@@ -304,86 +268,17 @@ export default function WorkItemCard({
                   onSubmit(item);
                   setShowModal(false);
                 }}
-                disabled={submitting}
+                disabled={submitting || !newRemarksData?.[item.rec_id]?.trim()}
                 style={{
                   paddingVertical: 8,
                   paddingHorizontal: 12,
                   borderRadius: 8,
-                  backgroundColor: submitting ? "#9ca3af" : "#10b981",
+                  backgroundColor: (submitting || !newRemarksData?.[item.rec_id]?.trim()) ? "#9ca3af" : "#10b981",
                 }}
               >
                 <Text style={{ color: "#fff" }}>Save</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Material Usage Modal */}
-      <Modal visible={showMaterialModal} transparent animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 20,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: 10,
-              padding: 20,
-              width: "100%",
-              maxHeight: "70%",
-            }}
-          >
-            <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 12,textAlign: "center" }}>
-              Material Usage for {item.subcategory_name}
-            </Text>
-
-            <ScrollView>
-              {relatedMaterials.length > 0 ? (
-                relatedMaterials.map((mat, idx) => (
-                  <View
-                    key={idx}
-                    style={{
-                      borderBottomWidth: 1,
-                      borderBottomColor: "#eee",
-                      paddingVertical: 6,
-                    }}
-                  >
-                    <Text style={{ fontSize: 14, fontWeight: "600" }}>
-                      {mat.item_name}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: "#444" }}>
-                      Qty: {mat.qty} | Balance: {mat.balance_qty}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: "#666" }}>
-                      Transport: {mat.transport_name || "N/A"}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={{ textAlign: "center", color: "#888" }}>
-                  No material usage found
-                </Text>
-              )}
-            </ScrollView>
-
-            <TouchableOpacity
-              onPress={() => setShowMaterialModal(false)}
-              style={{
-                marginTop: 16,
-                padding: 10,
-                backgroundColor: "#1e7a6f",
-                borderRadius: 6,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: "#fff" }}>Close</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
