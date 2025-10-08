@@ -436,13 +436,13 @@ export default function Work() {
                         selectedDate={selectedDate}
                         displayData={displayData}
                         newWorkData={newWorkData}
+                        newRemarksData={newRemarksData}
                         onChange={handleNewWorkChange}
+                        onRemarksChange={handleNewRemarksChange}
                         onSubmit={handleSubmit}
                         submitting={submitting}
                         materials={materials}
                         site={selectedWork}
-                        newRemarksData={newRemarksData}
-                        OnRemarksChange={handleNewRemarksChange}
                       />
                     );
                   })}
