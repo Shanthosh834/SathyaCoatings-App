@@ -35,7 +35,7 @@ function LoginPage() {
 
       // Login request
       const response = await axios.post(
-        "http://103.118.158.127/api/auth/login",
+        "http://10.140.205.28:5000/auth/login",
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -49,9 +49,9 @@ function LoginPage() {
       await SecureStore.setItemAsync("encodedUserId", encodedUserId);
       await SecureStore.setItemAsync("loginTime", Date.now().toString());
 
-      //  Verify token to fetch user profile
+      // Verify token to fetch user profile
       const verifyRes = await axios.post(
-        "http://103.118.158.127/api/auth/verify-token",
+        "http://10.140.205.28:5000/auth/verify-token",
         { token }
       );
 
@@ -69,7 +69,28 @@ function LoginPage() {
         text1: "Login successful!",
       });
 
-      navigation.replace("MainTabs"); // move to main app
+      // *** ROLE-BASED NAVIGATION ***
+      // Only allow siteincharge role to access mobile app
+      if (userProfile.role === "siteincharge") {
+        navigation.replace("MainTabs");
+      } else {
+        // Deny access for other roles
+        Toast.show({
+          type: "error",
+          text1: "Access Denied",
+          text2: "This mobile app is only for Site Incharge users. Please use the web application.",
+        });
+        
+        // Clear stored data
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("encodedUserId");
+        await SecureStore.deleteItemAsync("loginTime");
+        await SecureStore.deleteItemAsync("userName");
+        await SecureStore.deleteItemAsync("userEmail");
+        await SecureStore.deleteItemAsync("userRole");
+        await SecureStore.deleteItemAsync("userId");
+      }
+
     } catch (error) {
       console.error("Login error:", error?.response?.data || error.message);
 
@@ -98,8 +119,13 @@ function LoginPage() {
       </View>
 
       {/* Title */}
-      <Text className="mb-6 text-2xl font-semibold text-center text-gray-900">
+      <Text className="mb-2 text-2xl font-semibold text-center text-gray-900">
         Welcome to Sathya Coatings
+      </Text>
+      
+      {/* Subtitle for Site Incharge */}
+      <Text className="mb-6 text-sm text-center text-gray-600">
+        Site Incharge Mobile App
       </Text>
 
       {/* Email Input */}

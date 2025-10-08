@@ -32,7 +32,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { SelectionProvider } from "./SelectionContext";
 // import { BackHandler } from "react-native";
 import { useNavigationState } from "@react-navigation/native";
-
+import RoleProtectedScreen from "./RoleProtectedScreen";
 export const navigationRef = createRef();
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -354,7 +354,11 @@ function SwipeableTabNavigator({ navigation, route }) {
 }
 
 function MainTabs({ navigation }) {
-  return <SwipeableTabNavigator navigation={navigation} />;
+  return (
+    <RoleProtectedScreen>
+      <SwipeableTabNavigator navigation={navigation} />
+    </RoleProtectedScreen>
+  );
 }
 
 export default function App() {
@@ -391,7 +395,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false}}>
           {/* Login First */}
 
-          {/* <Stack.Screen name="Login" component={LoginPage} /> */}
+          <Stack.Screen name="Login" component={LoginPage} />
           
           <Stack.Screen name="MainTabs" component={MainTabs}   options={{ gestureEnabled: false }}/>
            {/* Add deep screens here */}
