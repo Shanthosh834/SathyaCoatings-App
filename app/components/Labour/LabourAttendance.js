@@ -15,7 +15,7 @@ import axios from 'axios';
 import LabourCard from './LabourCard';
 
 const API_CONFIG = {
-  BASE_URL: "http://ip",
+  BASE_URL: "http://12345",
   TIMEOUT: 15000,
 };
 

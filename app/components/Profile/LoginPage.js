@@ -33,7 +33,7 @@ const LoginPage = () => {
     try {
       // --- LOGIN REQUEST ---
       const response = await axios.post(
-        "http://ip/auth/login",
+        "http://12345/auth/login",
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -47,7 +47,7 @@ const LoginPage = () => {
 
       // --- VERIFY TOKEN ---
       const verifyResponse = await axios.post(
-        "http://ip/auth/verify-token",
+        "http://12345/auth/verify-token",
         { token },
         { headers: { "Content-Type": "application/json" } }
       );

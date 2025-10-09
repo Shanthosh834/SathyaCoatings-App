@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, Modal, FlatList } from "react-native";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 
-const API_BASE = "http://ip";
+const API_BASE = "http://12345";
 
 export default function DropdownSelector({ onSelectionComplete }) {
   const [companies, setCompanies] = useState([]);

@@ -269,7 +269,7 @@ const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
 
     setLoading(true);
     try {
-      const dispatchUrl = `http://ip/material/dispatch-details/?pd_id=${projectId}&site_id=${siteId}${descId ? `&desc_id=${descId}` : ''}`;
+      const dispatchUrl = `http://12345/material/dispatch-details/?pd_id=${projectId}&site_id=${siteId}${descId ? `&desc_id=${descId}` : ''}`;
       const dispatchResponse = await axios.get(dispatchUrl);
 
       if (!dispatchResponse.data.data || dispatchResponse.data.data.length === 0) {
@@ -290,7 +290,7 @@ const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
       setDispatchData(uniqueDispatches);
 
       const ackPromises = uniqueDispatches.map(dispatch => {
-        const ackUrl = `http://ip/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`;
+        const ackUrl = `http://12345/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`;
         return axios.get(ackUrl).catch(() => ({ data: { data: [] } }));
       });
 
@@ -1040,7 +1040,7 @@ const applyDateFilter = useCallback(async () => {
   });
   
   try {
-    const dispatchUrl = `http://ip/material/dispatch-details/?pd_id=${projectId}&site_id=${siteId}${descId ? `&desc_id=${descId}` : ''}`;
+    const dispatchUrl = `http://12345/material/dispatch-details/?pd_id=${projectId}&site_id=${siteId}${descId ? `&desc_id=${descId}` : ''}`;
     const dispatchResponse = await axios.get(dispatchUrl);
 
     if (!dispatchResponse.data.data || dispatchResponse.data.data.length === 0) {
@@ -1057,7 +1057,7 @@ const applyDateFilter = useCallback(async () => {
 
     // Get acknowledgements
     const ackPromises = uniqueDispatches.map(dispatch => {
-      const ackUrl = `http://ip/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`;
+      const ackUrl = `http://12345/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`;
       return axios.get(ackUrl).catch(() => ({ data: { data: [] } }));
     });
     const ackResponses = await Promise.all(ackPromises);
@@ -1077,7 +1077,7 @@ const applyDateFilter = useCallback(async () => {
           // Fetch usage for each date in range
           dateRange.forEach(date => {
             const dateStr = date.toISOString().split('T')[0];
-            const usageUrl = `http://ip/site-incharge/material-usage-details?material_ack_id=${materialAckId}&date=${dateStr}`;
+            const usageUrl = `http://12345/site-incharge/material-usage-details?material_ack_id=${materialAckId}&date=${dateStr}`;
             
             usagePromises.push(
               axios.get(usageUrl)
