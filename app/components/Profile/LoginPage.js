@@ -72,7 +72,9 @@ function LoginPage() {
       // *** ROLE-BASED NAVIGATION ***
       // Only allow siteincharge role to access mobile app
       if (userProfile.role === "siteincharge") {
-        navigation.replace("MainTabs");
+        navigation.replace("MainTabs", { 
+          encodedUserId: encodedUserId // Add this parameter
+        });
       } else {
         // Deny access for other roles
         Toast.show({

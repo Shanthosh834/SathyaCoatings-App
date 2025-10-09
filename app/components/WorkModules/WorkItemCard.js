@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, Modal, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -6,6 +6,22 @@ import Entypo from "@expo/vector-icons/Entypo";
 const isCompleted = (r) =>
   parseFloat(r?.completion_value) > 0 &&
   parseFloat(r?.completion_value).toFixed(2) === parseFloat(r?.value).toFixed(2);
+
+  const getRemainingTime = (createdAt) => {
+  const created = new Date(createdAt);
+  const now = new Date();
+  const elapsed = now - created;
+  const fortyEightHours = 48 * 60 * 60 * 1000;
+  const remaining = fortyEightHours - elapsed;
+
+  if (remaining <= 0) return null;
+
+  const hours = Math.floor(remaining / (60 * 60 * 1000));
+  const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
+
+  return { hours, minutes, seconds, total: remaining };
+};
 
 export default function WorkItemCard({
   item,
@@ -18,11 +34,16 @@ export default function WorkItemCard({
   materials,   
   site,  
   newRemarksData,
-  onRemarksChange
+  onRemarksChange,
+  onUpdateEntry,
+  onFreshHistory
 }) {
   const [showModal, setShowModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
 
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [editData, setEditData] = useState({ area_added: "", remarks: "" });
+  const [timers, setTimers] = useState({});
   const rate = parseFloat(item.rate) || 0;
   const cumulativeValue = useMemo(
     () => (displayData.cumulative_area * rate).toFixed(2),
@@ -38,6 +59,74 @@ export default function WorkItemCard({
         m.item_name === item.subcategory_name
     );
   }, [materials, item]);
+
+    useEffect(() => {
+    const interval = setInterval(() => {
+      const newTimers = {};
+      displayData.entries.forEach((entry) => {
+        if (entry.is_editable) {
+          const remaining = getRemainingTime(entry.created_at);
+          if (remaining) {
+            newTimers[entry.entry_id] = remaining;
+          }
+        }
+      });
+      setTimers(newTimers);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [displayData.entries]);
+
+    const handleEditEntry = (entry) => {
+    setEditingEntry(entry);
+    setEditData({
+      area_added: String(entry.area_added || ""),
+      remarks: entry.remarks || ""
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingEntry(null);
+    setEditData({ area_added: "", remarks: "" });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editData.area_added || !editData.remarks.trim()) {
+      alert("Both area and remarks are required");
+      return;
+    }
+
+    const areaValue = parseFloat(editData.area_added);
+    if (isNaN(areaValue) || areaValue < 0) {
+      alert("Please enter a valid positive number for area");
+      return;
+    }
+
+    try {
+      // onUpdateEntry(entryId, payload, rec_id)
+      await onUpdateEntry(editingEntry.entry_id, {
+        area_added: areaValue,
+        remarks: editData.remarks.trim()
+      }, item.rec_id);
+
+      handleCancelEdit();
+
+      // optional refresh after update
+      if (onRefreshHistory) {
+        await onRefreshHistory(item.rec_id);
+      }
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
+    const formatTimer = (timer) => {
+    if (!timer) return "";
+    return `${timer.hours}h ${timer.minutes}m ${timer.seconds}s`;
+  };
+
+
+
 
   return (
     <View
@@ -145,6 +234,169 @@ export default function WorkItemCard({
                 </Text>
               </Text>
             ))}
+            {/* {displayData.entries.map((e) => (
+  <View
+    key={e.entry_id}
+    style={{
+      backgroundColor: editingEntry?.entry_id === e.entry_id ? "#fef3c7" : "#fff",
+      padding: 8,
+      marginBottom: 6,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: editingEntry?.entry_id === e.entry_id ? "#fbbf24" : "#e5e7eb",
+    }}
+  >
+    {editingEntry?.entry_id === e.entry_id ? (
+      // Edit Mode
+      <View>
+        <Text style={{ fontSize: 11, fontWeight: "600", marginBottom: 4, color: "#374151" }}>
+          Edit Entry
+        </Text>
+        
+        <Text style={{ fontSize: 10, color: "#6b7280", marginBottom: 2 }}>
+          Area Added
+        </Text>
+        <TextInput
+          keyboardType="numeric"
+          value={editData.area_added}
+          onChangeText={(t) => setEditData(prev => ({ ...prev, area_added: t }))}
+          placeholder="Area"
+          style={{
+            borderWidth: 1,
+            borderColor: "#d1d5db",
+            borderRadius: 6,
+            padding: 6,
+            fontSize: 12,
+            backgroundColor: "#fff",
+            marginBottom: 6,
+          }}
+        />
+
+        <Text style={{ fontSize: 10, color: "#6b7280", marginBottom: 2 }}>
+          Remarks
+        </Text>
+        <TextInput
+          value={editData.remarks}
+          onChangeText={(t) => setEditData(prev => ({ ...prev, remarks: t }))}
+          placeholder="Remarks (required)"
+          style={{
+            borderWidth: 1,
+            borderColor: "#d1d5db",
+            borderRadius: 6,
+            padding: 6,
+            fontSize: 12,
+            backgroundColor: "#fff",
+            marginBottom: 6,
+          }}
+        />
+
+        <View style={{ flexDirection: "row", gap: 4 }}>
+          <TouchableOpacity
+            onPress={handleSaveEdit}
+            disabled={submitting || !editData.area_added || !editData.remarks.trim()}
+            style={{
+              flex: 1,
+              backgroundColor: (submitting || !editData.area_added || !editData.remarks.trim()) ? "#9ca3af" : "#10b981",
+              paddingVertical: 6,
+              paddingHorizontal: 8,
+              borderRadius: 6,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons name="checkmark-circle" size={14} color="#fff" style={{ marginRight: 4 }} />
+            <Text style={{ color: "#fff", fontSize: 11, fontWeight: "600" }}>
+              Update
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleCancelEdit}
+            style={{
+              flex: 1,
+              backgroundColor: "#6b7280",
+              paddingVertical: 6,
+              paddingHorizontal: 8,
+              borderRadius: 6,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons name="close-circle" size={14} color="#fff" style={{ marginRight: 4 }} />
+            <Text style={{ color: "#fff", fontSize: 11, fontWeight: "600" }}>
+              Cancel
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    ) : (
+      // View Mode
+      <View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <Text style={{ fontSize: 12, color: "#374151" }}>
+            <Text style={{ fontWeight: "600" }}>
+              {parseFloat(e.area_added || 0).toFixed(2)}
+            </Text>{" "}
+            added at{" "}
+            <Text style={{ color: "#6b7280" }}>
+              {new Date(e.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+          </Text>
+        </View>
+
+       
+
+        {e.is_editable ? (
+          <View>
+            {timers[e.entry_id] && (
+              <View style={{ 
+                backgroundColor: "#fef3c7", 
+                padding: 4, 
+                borderRadius: 4, 
+                marginBottom: 4,
+                flexDirection: "row",
+                alignItems: "center"
+              }}>
+                <Ionicons name="time-outline" size={12} color="#f59e0b" style={{ marginRight: 4 }} />
+                <Text style={{ fontSize: 10, color: "#92400e", fontWeight: "600" }}>
+                  expires in: {formatTimer(timers[e.entry_id])}
+                </Text>
+              </View>
+            )}
+            
+            <TouchableOpacity
+              onPress={() => handleEditEntry(e)}
+              style={{
+                backgroundColor: "#3b82f6",
+                paddingVertical: 4,
+                paddingHorizontal: 8,
+                borderRadius: 6,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="pencil" size={12} color="#fff" style={{ marginRight: 4 }} />
+              <Text style={{ color: "#fff", fontSize: 11, fontWeight: "600" }}>
+                Edit Entry
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={{ fontSize: 10, color: "#9ca3af", fontStyle: "italic", marginTop: 2 }}>
+            Edit disabled (48h passed)
+          </Text>
+        )}
+      </View>
+    )}
+  </View>
+))} */}
+
           </View>
         )}
       </View>

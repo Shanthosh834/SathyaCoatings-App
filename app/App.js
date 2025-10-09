@@ -50,26 +50,6 @@ function SwipeableTabNavigator({ navigation, route }) {
 
   // Tab configuration
   const tabs = [
-    // {
-    //   name: "Expense",
-    //   component: ExpenseEntry,
-    //   icon: ({ size, color }) => <FontAwesome5 name="rupee-sign" size={size} color={color} />,
-    // },
-    // {
-    //   name: "Material",
-    //   component: Material,
-    //   icon: ({ size, color }) => <Feather name="package" size={size} color={color} />,
-    // },
-    // {
-    //   name: "Work",
-    //   component: Work,
-    //   icon: ({ size, color }) => <Foundation name="clipboard-notes" size={size} color={color} />,
-    // },
-    // {
-    //   name: "Labour",
-    //   component: LabourAssign,
-    //   icon: ({ size, color }) => <Feather name="users" size={size} color={color} />,
-    // },
     {
       name: "Entry",
       component: Entry,
@@ -87,14 +67,7 @@ function SwipeableTabNavigator({ navigation, route }) {
     },
   ];
 
-   // listen for pageIndex param
-  // useEffect(() => {
-  //   if (route?.params?.pageIndex !== undefined) {
-  //     pagerRef.current?.setPage(route.params.pageIndex);
-  //     setCurrentPage(route.params.pageIndex);
-  //   }
-  // }, [route?.params?.pageIndex]);
-
+  
   // Load user info from SecureStore
   useEffect(() => {
     const fetchUser = async () => {
@@ -188,7 +161,7 @@ function SwipeableTabNavigator({ navigation, route }) {
         {/* LeaderBoard */}
         <TouchableOpacity className="mr-4" onPress={() => setLeaderBoardVisible(true)}>
           {/* <Icon name="leaderboard" size={32} color="#fff" /> */}
-          <FontAwesome6 name="ranking-star" size={32} color="#fff" />
+          {/* <FontAwesome6 name="ranking-star" size={32} color="#fff" /> */}
         </TouchableOpacity>
 
         {/* User Profile */}
@@ -201,12 +174,7 @@ function SwipeableTabNavigator({ navigation, route }) {
             name="person-circle-outline" 
             size={44} 
             color="#fff" 
-            style={{
-              //backgroundColor: "#f0f0f0", // icon background
-              // borderRadius: 50,           // make it circular
-              // padding: 10,                // space inside
-                       // shadow for Android
-            }} 
+            
           />
         </TouchableOpacity>
       </View>
@@ -395,7 +363,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false}}>
           {/* Login First */}
 
-          {/* <Stack.Screen name="Login" component={LoginPage} /> */}
+          <Stack.Screen name="Login" component={LoginPage} />
           
           <Stack.Screen name="MainTabs" component={MainTabs}   options={{ gestureEnabled: false }}/>
            {/* Add deep screens here */}

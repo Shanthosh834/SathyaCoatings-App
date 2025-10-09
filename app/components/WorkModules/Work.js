@@ -411,6 +411,7 @@ export default function Work() {
                  "Loading work descriptions..."}
               </Text>
             </View>
+            
           ) : Object.keys(groupedItems).length ? (
             <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
               {Object.keys(groupedItems).map((category, idx) => (
