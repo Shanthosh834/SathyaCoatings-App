@@ -16,7 +16,7 @@ import axios from "axios";
 import WorkItemCard from "./WorkItemCard";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-const API = "http://10.140.205.28:5000";
+const API = "http://ip";
 
 const formatDate = (d) =>
   d instanceof Date ? d.toISOString().split("T")[0] : d;
