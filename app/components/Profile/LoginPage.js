@@ -12,7 +12,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
 
-function LoginPage() {
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,78 +31,70 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      console.log("Sending login request:", { email, password });
-
-      // Login request
+      // --- LOGIN REQUEST ---
       const response = await axios.post(
         "http://10.140.205.28:5000/auth/login",
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      console.log("Login response:", response.data);
-
       const { token, encodedUserId } = response.data;
 
-      // Save token + encodedUserId
+      // --- SAVE TOKEN LOCALLY ---
       await SecureStore.setItemAsync("token", token);
       await SecureStore.setItemAsync("encodedUserId", encodedUserId);
       await SecureStore.setItemAsync("loginTime", Date.now().toString());
 
-      // Verify token to fetch user profile
-      const verifyRes = await axios.post(
+      // --- VERIFY TOKEN ---
+      const verifyResponse = await axios.post(
         "http://10.140.205.28:5000/auth/verify-token",
-        { token }
+        { token },
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      const userProfile = verifyRes.data;
-      console.log("Verified user profile:", userProfile);
+      const userData = verifyResponse.data;
+      console.log("Verified user:", userData);
 
-      // Save profile details
-      await SecureStore.setItemAsync("userName", userProfile.user_name);
-      await SecureStore.setItemAsync("userEmail", userProfile.user_email);
-      await SecureStore.setItemAsync("userRole", userProfile.role);
-      await SecureStore.setItemAsync("userId", String(userProfile.user_id));
+      // ✅ Allow only siteincharge
+      if (userData.role !== "siteincharge") {
+        Toast.show({
+          type: "error",
+          text1: "Access Denied",
+          text2:
+            "This mobile app is only for Site Incharge users. Please use the web application.",
+        });
+
+        // Clear saved credentials
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("encodedUserId");
+        await SecureStore.deleteItemAsync("loginTime");
+        return;
+      }
+
+      // --- SAVE USER DETAILS ---
+      await SecureStore.setItemAsync("userName", userData.user_name);
+      await SecureStore.setItemAsync("userEmail", userData.user_email);
+      await SecureStore.setItemAsync("userRole", userData.role);
+      await SecureStore.setItemAsync("userId", String(userData.user_id));
 
       Toast.show({
         type: "success",
         text1: "Login successful!",
       });
 
-      // *** ROLE-BASED NAVIGATION ***
-      // Only allow siteincharge role to access mobile app
-      if (userProfile.role === "siteincharge") {
-        navigation.replace("MainTabs", { 
-          encodedUserId: encodedUserId // Add this parameter
-        });
-      } else {
-        // Deny access for other roles
-        Toast.show({
-          type: "error",
-          text1: "Access Denied",
-          text2: "This mobile app is only for Site Incharge users. Please use the web application.",
-        });
-        
-        // Clear stored data
-        await SecureStore.deleteItemAsync("token");
-        await SecureStore.deleteItemAsync("encodedUserId");
-        await SecureStore.deleteItemAsync("loginTime");
-        await SecureStore.deleteItemAsync("userName");
-        await SecureStore.deleteItemAsync("userEmail");
-        await SecureStore.deleteItemAsync("userRole");
-        await SecureStore.deleteItemAsync("userId");
-      }
-
+      // --- NAVIGATE TO MAIN APP ---
+      setTimeout(() => {
+        navigation.replace("MainTabs", { encodedUserId });
+      }, 1500);
     } catch (error) {
       console.error("Login error:", error?.response?.data || error.message);
-
       Toast.show({
         type: "error",
         text1: "Login Failed",
         text2:
           error.response?.data?.error ||
           error.response?.statusText ||
-          "Something went wrong",
+          "Something went wrong. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -124,8 +116,7 @@ function LoginPage() {
       <Text className="mb-2 text-2xl font-semibold text-center text-gray-900">
         Welcome to Sathya Coatings
       </Text>
-      
-      {/* Subtitle for Site Incharge */}
+
       <Text className="mb-6 text-sm text-center text-gray-600">
         Site Incharge Mobile App
       </Text>
@@ -149,7 +140,7 @@ function LoginPage() {
         className="w-full px-4 py-3 mb-4 bg-white border border-gray-300 rounded-lg"
       />
 
-      {/* Button */}
+      {/* Submit Button */}
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={loading}
@@ -169,6 +160,6 @@ function LoginPage() {
       <Toast />
     </View>
   );
-}
+};
 
 export default LoginPage;
