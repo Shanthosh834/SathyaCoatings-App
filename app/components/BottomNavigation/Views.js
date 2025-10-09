@@ -19,7 +19,7 @@ import { useSelection } from '../../SelectionContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as SecureStore from 'expo-secure-store';
 
-const API_BASE_URL = 'http://10.140.205.28:5000';
+const API_BASE_URL = 'http://192.168.137.1:5000';
 
 // Helper function to format date
 const formatDateTime = (dateString) => {

@@ -35,7 +35,7 @@ function LoginPage() {
 
       // Login request
       const response = await axios.post(
-        "http://10.140.205.28:5000/auth/login",
+        "http://192.168.137.1:5000/auth/login",
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -51,7 +51,7 @@ function LoginPage() {
 
       // Verify token to fetch user profile
       const verifyRes = await axios.post(
-        "http://10.140.205.28:5000/auth/verify-token",
+        "http://192.168.137.1:5000/auth/verify-token",
         { token }
       );
 

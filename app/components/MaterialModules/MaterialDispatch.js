@@ -61,7 +61,7 @@ const Material = () => {
   const fetchUsageDetails = async (ackId) => {
     try {
       const response = await axios.get(
-        `http://10.140.205.28:5000/site-incharge/material-usage-details?material_ack_id=${ackId}&date=${selectedDate}`
+        `http://192.168.137.1:5000/site-incharge/material-usage-details?material_ack_id=${ackId}&date=${selectedDate}`
       );
       setUsageDetails(prev => ({
         ...prev,
@@ -79,7 +79,7 @@ const Material = () => {
         setLoading(true);
         try {
           const response = await axios.get(
-            `http://10.140.205.28:5000/material/dispatch-details/?pd_id=${selectedProject.project_id}&site_id=${selectedSite.site_id}&desc_id=${selectedWorkDescription.desc_id}`
+            `http://192.168.137.1:5000/material/dispatch-details/?pd_id=${selectedProject.project_id}&site_id=${selectedSite.site_id}&desc_id=${selectedWorkDescription.desc_id}`
           );
 
           const dispatchMap = new Map();
@@ -94,7 +94,7 @@ const Material = () => {
 
           const ackPromises = uniqueDispatches.map(dispatch =>
             axios.get(
-              `http://10.140.205.28:5000/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`
+              `http://192.168.137.1:5000/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`
             ).catch(err => ({ data: { data: [] } }))
           );
 
@@ -123,7 +123,7 @@ const Material = () => {
     if (!ackData) return;
 
     try {
-      const response = await axios.post("http://10.140.205.28:5000/site-incharge/acknowledge-material", {
+      const response = await axios.post("http://192.168.137.1:5000/site-incharge/acknowledge-material", {
         material_dispatch_id: parseInt(dispatchId),
         overall_quantity: ackData.overall_quantity !== "" ? parseInt(ackData.overall_quantity) : null,
         remarks: ackData.remarks || null,
@@ -139,7 +139,7 @@ const Material = () => {
       
       // Refresh acknowledgement data for the specific dispatch
       const responseRefresh = await axios.get(
-        `http://10.140.205.28:5000/site-incharge/acknowledgement-details?material_dispatch_id=${dispatchId}`
+        `http://192.168.137.1:5000/site-incharge/acknowledgement-details?material_dispatch_id=${dispatchId}`
       );
       setAckDetails(prev => ({
         ...prev,
@@ -222,7 +222,7 @@ const Material = () => {
     try {
       setSubmitting(true);
       
-      const response = await axios.post("http://10.140.205.28:5000/site-incharge/save-material-usage", {
+      const response = await axios.post("http://192.168.137.1:5000/site-incharge/save-material-usage", {
         material_ack_id: parseInt(ackId),
         entry_date: selectedDate,
         overall_qty: parseInt(usageData.overall_qty),
