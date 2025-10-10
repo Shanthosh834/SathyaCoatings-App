@@ -1,22 +1,17 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   ScrollView, 
   Modal, 
-  FlatList,
   ActivityIndicator,
-  RefreshControl,
   Alert
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import axios from 'axios';
-import { useRoute } from '@react-navigation/native';
-import { useSelection } from '../../SelectionContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import * as SecureStore from "expo-secure-store";
 
 // Helper function to format dates
@@ -152,7 +147,7 @@ const generatePDFHTML = (title, data, type) => {
 };
 
 // Material Usage History Modal Component
-const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
+export const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
@@ -182,9 +177,18 @@ const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
 
       // Fetch usage history using the same endpoint as website
       const usageUrl = `http://103.118.158.127/api/site-incharge/material-usage-by-incharge/${userId}`;
-      const response = await axios.get(usageUrl);
+      
+      console.log("Making request to:", usageUrl);
+      
+      const response = await axios.get(usageUrl, {
+        timeout: 10000, // 10 second timeout
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       console.log("Usage history response:", response.data);
+      console.log("Response status:", response.status);
 
       if (response.data.data && response.data.data.length > 0) {
         // Transform the data to match our display format
@@ -195,25 +199,25 @@ const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
           if (item.usage) {
             transformedData.push({
               id: `usage-${item.usage.id}`,
-              item_name: item.usage.item_name,
-              overall_qty: item.usage.overall_qty,
-              remarks: item.usage.remarks,
+              item_name: item.usage.item_name || 'N/A',
+              overall_qty: item.usage.overall_qty || '0',
+              remarks: item.usage.remarks || '-',
               created_at: item.usage.created_at,
-              updated_by: item.usage.updated_by_user_name,
+              updated_by: item.usage.updated_by_user_name || 'N/A',
               type: 'main'
             });
           }
 
           // Add daily history entries
-          if (item.daily_history && item.daily_history.length > 0) {
-            item.daily_history.forEach((daily,index) => {
+          if (item.daily_history && Array.isArray(item.daily_history) && item.daily_history.length > 0) {
+            item.daily_history.forEach((daily, index) => {
               transformedData.push({
-                id: `daily-${index}`,
-                item_name: item.usage.item_name,
-                overall_qty: daily.overall_qty,
-                remarks: daily.remarks,
+                id: `daily-${item.usage?.id || 'unknown'}-${index}`,
+                item_name: item.usage?.item_name || daily.item_name || 'N/A',
+                overall_qty: daily.overall_qty || '0',
+                remarks: daily.remarks || '-',
                 created_at: daily.created_at,
-                updated_by: daily.updated_by_user_name,
+                updated_by: daily.updated_by_user_name || 'N/A',
                 entry_date: daily.entry_date,
                 type: 'daily'
               });
@@ -221,13 +225,32 @@ const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
           }
         });
 
+        console.log("Transformed usage data:", transformedData);
+        console.log("Total records:", transformedData.length);
         setUsageData(transformedData);
       } else {
+        console.log("No usage data found in response");
         setUsageData([]);
       }
     } catch (err) {
       console.error("Error fetching usage history:", err);
-      Alert.alert("Error", "Failed to fetch usage history. Please try again.");
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      
+      let errorMessage = "Failed to fetch usage history. Please try again.";
+      
+      if (err.response) {
+        // Server responded with error
+        errorMessage = `Server Error: ${err.response.status}. ${err.response.data?.message || 'Please try again.'}`;
+      } else if (err.request) {
+        // Request made but no response
+        errorMessage = "Network error. Please check your internet connection.";
+      }
+      
+      Alert.alert("Error", errorMessage);
       setUsageData([]);
     } finally {
       setLoading(false);
@@ -373,7 +396,7 @@ const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
 };
 
 // Acknowledgement Summary Modal Component
-const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
+export const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
   const [ackData, setAckData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
@@ -403,9 +426,18 @@ const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
 
       // Fetch acknowledgement history using the same endpoint as website
       const ackUrl = `http://103.118.158.127/api/site-incharge/acknowledgements-by-incharge/${userId}`;
-      const response = await axios.get(ackUrl);
+      
+      console.log("Making request to:", ackUrl);
+      
+      const response = await axios.get(ackUrl, {
+        timeout: 10000, // 10 second timeout
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       console.log("Acknowledgement history response:", response.data);
+      console.log("Response status:", response.status);
 
       if (response.data.data && response.data.data.length > 0) {
         // Transform the data to match our display format
@@ -416,38 +448,57 @@ const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
           if (item.acknowledgement) {
             transformedData.push({
               id: `ack-${item.acknowledgement.id}`,
-              item_name: item.acknowledgement.item_name,
-              overall_quantity: item.acknowledgement.overall_quantity,
-              remarks: item.acknowledgement.remarks,
+              item_name: item.acknowledgement.item_name || 'N/A',
+              overall_quantity: item.acknowledgement.overall_quantity || '0',
+              remarks: item.acknowledgement.remarks || '-',
               created_at: item.acknowledgement.created_at,
-              updated_by: item.acknowledgement.updated_by_user_name,
+              updated_by: item.acknowledgement.updated_by_user_name || 'N/A',
               type: 'main'
             });
           }
 
           // Add history entries
-          if (item.history && item.history.length > 0) {
-            item.history.forEach(hist => {
+          if (item.history && Array.isArray(item.history) && item.history.length > 0) {
+            item.history.forEach((hist, index) => {
               transformedData.push({
-                id: `hist-${hist.id}`,
-                item_name: hist.item_name,
-                overall_quantity: hist.overall_quantity,
-                remarks: hist.remarks,
+                id: `hist-${hist.id || index}`,
+                item_name: hist.item_name || item.acknowledgement?.item_name || 'N/A',
+                overall_quantity: hist.overall_quantity || '0',
+                remarks: hist.remarks || '-',
                 created_at: hist.created_at,
-                updated_by: hist.updated_by_user_name,
+                updated_by: hist.updated_by_user_name || 'N/A',
                 type: 'history'
               });
             });
           }
         });
 
+        console.log("Transformed acknowledgement data:", transformedData);
+        console.log("Total records:", transformedData.length);
         setAckData(transformedData);
       } else {
+        console.log("No acknowledgement data found in response");
         setAckData([]);
       }
     } catch (err) {
       console.error("Error fetching acknowledgement history:", err);
-      Alert.alert("Error", "Failed to fetch acknowledgement history. Please try again.");
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      
+      let errorMessage = "Failed to fetch acknowledgement history. Please try again.";
+      
+      if (err.response) {
+        // Server responded with error
+        errorMessage = `Server Error: ${err.response.status}. ${err.response.data?.message || 'Please try again.'}`;
+      } else if (err.request) {
+        // Request made but no response
+        errorMessage = "Network error. Please check your internet connection.";
+      }
+      
+      Alert.alert("Error", errorMessage);
       setAckData([]);
     } finally {
       setLoading(false);
@@ -588,7 +639,7 @@ const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => {
 };
 
 // Sub-options Modal (for Material module)
-const SubOptionsModal = ({ visible, onClose, onSelectUsage, onSelectAcknowledgement }) => {
+export const SubOptionsModal = ({ visible, onClose, onSelectUsage, onSelectAcknowledgement }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <TouchableOpacity 
@@ -630,152 +681,3 @@ const SubOptionsModal = ({ visible, onClose, onSelectUsage, onSelectAcknowledgem
     </Modal>
   );
 };
-
-// Selection Info Header Component
-const SelectionInfoHeader = ({ selection }) => (
-  <View className="px-4 py-2 mx-4 mb-4 bg-white border border-gray-400 rounded-lg">
-    <View className="flex-row flex-wrap">
-      <View className="w-1/2 pr-2 mb-2">
-        <Text className="text-[10px] uppercase tracking-wide text-gray-500">COMPANY</Text>
-        <Text className="text-xs font-semibold text-gray-900">
-          {selection?.company?.company_name || "—"}
-        </Text>
-      </View>
-      <View className="w-1/2 pl-2 mb-2">
-        <Text className="text-[10px] uppercase tracking-wide text-gray-500">PROJECT</Text>
-        <Text className="text-xs font-semibold text-gray-900">
-          {selection?.project?.project_name || "—"}
-        </Text>
-      </View>
-      <View className="w-1/2 pr-2">
-        <Text className="text-[10px] uppercase tracking-wide text-gray-500">SITE</Text>
-        <Text className="text-xs font-semibold text-gray-900">
-          {selection?.site?.site_name || "—"}
-        </Text>
-      </View>
-      <View className="w-1/2 pl-2">
-        <Text className="text-[10px] uppercase tracking-wide text-gray-500">WORK</Text>
-        <Text className="text-xs font-semibold text-gray-900">
-          {selection?.workDesc?.desc_name || "—"}
-        </Text>
-      </View>
-    </View>
-  </View>
-);
-
-// Reusable Card Component
-const ViewCard = ({ title, iconName, onPress, description }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className="w-[48%] mb-5 rounded-xl bg-white shadow-md border border-gray-200 overflow-hidden"
-    activeOpacity={0.7}
-  >
-    <View className="justify-center border-b border-gray-200 h-11 bg-gray-50">
-      <Text className="text-lg font-semibold text-center text-gray-700">{title}</Text>
-    </View>
-    <View className="items-center justify-center py-6 bg-white">
-      <Ionicons name={iconName} size={36} color="#6b7280" />
-      {description && (
-        <Text className="px-2 mt-2 text-xs font-normal text-center text-gray-500">{description}</Text>
-      )}
-    </View>
-  </TouchableOpacity>
-);
-
-// Main Views Screen Component
-function ViewsMainScreen() {
-  const { selection } = useSelection();
-  const [subOptionsVisible, setSubOptionsVisible] = useState(false);
-  const [usageModalVisible, setUsageModalVisible] = useState(false);
-  const [acknowledgementModalVisible, setAcknowledgementModalVisible] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleMaterialCardPress = useCallback(() => {
-    setSubOptionsVisible(true);
-  }, []);
-
-  const handleUsageHistory = useCallback(() => {
-    setSubOptionsVisible(false);
-    setUsageModalVisible(true);
-  }, []);
-
-  const handleAcknowledgementHistory = useCallback(() => {
-    setSubOptionsVisible(false);
-    setAcknowledgementModalVisible(true);
-  }, []);
-
-  const handleRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setRefreshing(false);
-  }, []);
-
-  return (
-    <View className="flex-1 bg-gray-100">
-      <ScrollView
-        contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 12 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Selection Info Header */}
-        {selection && <SelectionInfoHeader selection={selection} />}
-
-        <View className="px-5 mb-5">
-          <Text className="mb-1 text-2xl font-bold text-center text-slate-800">Overall Summary</Text>
-        </View>
-
-        <View className="flex-row flex-wrap justify-between px-1">
-          <ViewCard
-            title="Material"
-            iconName="cube-outline"
-            description="View material records"
-            onPress={handleMaterialCardPress}
-          />
-          <ViewCard
-            title="Expense"
-            iconName="cash-outline"
-            description="View expense records"
-            onPress={() => Alert.alert('Coming Soon', 'Expense history will be available soon')}
-          />
-          <ViewCard
-            title="Work"
-            iconName="clipboard-outline"
-            description="View work completion history"
-            onPress={() => Alert.alert('Coming Soon', 'Work history will be available soon')}
-          />
-          <ViewCard
-            title="Labour"
-            iconName="people-outline"
-            description="View labour assignment records"
-            onPress={() => Alert.alert('Coming Soon', 'Labour history will be available soon')}
-          />
-        </View>
-      </ScrollView>
-
-      <SubOptionsModal
-        visible={subOptionsVisible}
-        onClose={() => setSubOptionsVisible(false)}
-        onSelectUsage={handleUsageHistory}
-        onSelectAcknowledgement={handleAcknowledgementHistory}
-      />
-
-      <MaterialUsageHistoryModal
-        visible={usageModalVisible}
-        onClose={() => setUsageModalVisible(false)}
-        selection={selection}
-      />
-
-      <AcknowledgementSummaryModal
-        visible={acknowledgementModalVisible}
-        onClose={() => setAcknowledgementModalVisible(false)}
-        selection={selection}
-      />
-    </View>
-  );
-}
-
-export default function Views() {
-  return <ViewsMainScreen />;
-}

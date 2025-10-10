@@ -26,7 +26,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LabourAssign from "./components/Labour/LabourAssign";
 import Entry from "./components/BottomNavigation/Entry";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import Views from "./components/BottomNavigation/Views";
+import Views from "./components/BottomNavigation/Views/Views";
 import Remarks from "./components/BottomNavigation/Remarks";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SelectionProvider } from "./SelectionContext";
