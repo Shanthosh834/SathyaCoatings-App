@@ -15,7 +15,7 @@
 // import { Ionicons } from "@expo/vector-icons";
 
 // const API_CONFIG = {
-//   BASE_URL: "http://12345",
+//   BASE_URL: "http://103.118.158.127/api",
 //   TIMEOUT: 15000,
 //   RETRY_ATTEMPTS: 3,
 //   RETRY_DELAY: 1000,
@@ -769,7 +769,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 
-const API_BASE = "http://12345";
+const API_BASE = "http://103.118.158.127/api";
 
 export default function LabourAssign({ route }) {
   const { selection } = route?.params || {};

@@ -85,7 +85,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //     try {
 //       //if  fetch works correctly loading states will display
 //       setLoading(true);
-//       const response = await axios.get("http://12345/project/companies");
+//       const response = await axios.get("http://103.118.158.127/api/project/companies");
 //       setCompanies(response.data || []);
 //     } catch (err) {
 //       setError("Failed to fetch companies");
@@ -100,7 +100,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //     try {
 //       //if  fetch works correctly loading states will display
 //       setLoading(true);
-//       const response = await axios.get("http://12345/project/projects-with-sites");
+//       const response = await axios.get("http://103.118.158.127/api/project/projects-with-sites");
 //       setAllProjects(response.data || []);
 //     } catch (err) {
 //       setError("Failed to fetch projects");
@@ -115,7 +115,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //     try {
 //       //if  fetch works correctly loading states will display
 //       setLoading(true);
-//       const response = await axios.get("http://12345/material/work-descriptions", {
+//       const response = await axios.get("http://103.118.158.127/api/material/work-descriptions", {
 //         params: { site_id },
 //       });
 //       setWorkDescriptions(response.data.data || []);
@@ -131,7 +131,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //   const fetchUsageDetails = async (ackId) => {
 //   try {
 //     const response = await axios.get(
-//       `http://12345/site-incharge/material-usage-details?material_ack_id=${ackId}&date=${selectedDate}`
+//       `http://103.118.158.127/api/site-incharge/material-usage-details?material_ack_id=${ackId}&date=${selectedDate}`
 //     );
 //     setUsageDetails(prev => ({
 //       ...prev,
@@ -199,7 +199,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //         setLoading(true);
 //         try {
 //           const response = await axios.get(
-//             `http://12345/material/dispatch-details/?pd_id=${selectedProject.project_id}&site_id=${selectedSite.site_id}&desc_id=${selectedWorkDescription.desc_id}`
+//             `http://103.118.158.127/api/material/dispatch-details/?pd_id=${selectedProject.project_id}&site_id=${selectedSite.site_id}&desc_id=${selectedWorkDescription.desc_id}`
 //           );
 
 //           const dispatchMap = new Map();
@@ -214,7 +214,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 
 //           const ackPromises = uniqueDispatches.map(dispatch =>
 //             axios.get(
-//               `http://12345/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`
+//               `http://103.118.158.127/api/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`
 //             ).catch(err => ({ data: { data: [] } }))
 //           );
 
@@ -245,7 +245,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //     if (!ackData) return;
 
 //     try {
-//       const response = await axios.post("http://12345/site-incharge/acknowledge-material", {
+//       const response = await axios.post("http://103.118.158.127/api/site-incharge/acknowledge-material", {
 //         material_dispatch_id: parseInt(dispatchId),
 //         overall_quantity: ackData.overall_quantity !== "" ? parseInt(ackData.overall_quantity) : null,
 //         remarks: ackData.remarks || null,
@@ -261,7 +261,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
       
 //       // Refresh acknowledgement data for the specific dispatch
 //       const responseRefresh = await axios.get(
-//         `http://12345/site-incharge/acknowledgement-details?material_dispatch_id=${dispatchId}`
+//         `http://103.118.158.127/api/site-incharge/acknowledgement-details?material_dispatch_id=${dispatchId}`
 //       );
 //       setAckDetails(prev => ({
 //         ...prev,
@@ -354,7 +354,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 // //     setSubmitting(true);
     
 // //     // Use the correct API endpoint from your web version
-// //     const response = await axios.post("http://12345/site-incharge/save-material-usage", {
+// //     const response = await axios.post("http://103.118.158.127/api/site-incharge/save-material-usage", {
 // //       material_ack_id: parseInt(ackId),
 // //       entry_date: selectedDate,
 // //       overall_qty: parseInt(usageData.overall_qty),
@@ -393,7 +393,7 @@ This is the Android app which i have done for "Sathya Coatings" client using Rea
 //   try {
 //     setSubmitting(true);
     
-//     const response = await axios.post("http://12345/site-incharge/save-material-usage", {
+//     const response = await axios.post("http://103.118.158.127/api/site-incharge/save-material-usage", {
 //       material_ack_id: parseInt(ackId),
 //       entry_date: selectedDate,
 //       overall_qty: parseInt(usageData.overall_qty),

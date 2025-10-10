@@ -22,7 +22,7 @@ import Work from "../WorkModules/Work";
 import { useSelection } from "../../SelectionContext";
 
 const API_CONFIG = {
-  BASE_URL: "http://12345",
+  BASE_URL: "http://103.118.158.127/api",
   TIMEOUT: 15000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
@@ -194,7 +194,7 @@ const DropdownModal = ({ visible, onClose, data, onSelect, title, keyProp, type 
         return item.desc_name;
       default:
         return 'Unknown';
-    }
+    }                                                     
   };
 
   return (

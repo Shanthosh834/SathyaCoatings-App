@@ -61,7 +61,7 @@ const Material = () => {
   const fetchUsageDetails = async (ackId) => {
     try {
       const response = await axios.get(
-        `http://12345/site-incharge/material-usage-details?material_ack_id=${ackId}&date=${selectedDate}`
+        `http://103.118.158.127/api/site-incharge/material-usage-details?material_ack_id=${ackId}&date=${selectedDate}`
       );
       setUsageDetails(prev => ({
         ...prev,
@@ -79,7 +79,7 @@ const Material = () => {
         setLoading(true);
         try {
           const response = await axios.get(
-            `http://12345/material/dispatch-details/?pd_id=${selectedProject.project_id}&site_id=${selectedSite.site_id}&desc_id=${selectedWorkDescription.desc_id}`
+            `http://103.118.158.127/api/material/dispatch-details/?pd_id=${selectedProject.project_id}&site_id=${selectedSite.site_id}&desc_id=${selectedWorkDescription.desc_id}`
           );
 
           const dispatchMap = new Map();
@@ -94,7 +94,7 @@ const Material = () => {
 
           const ackPromises = uniqueDispatches.map(dispatch =>
             axios.get(
-              `http://12345/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`
+              `http://103.118.158.127/api/site-incharge/acknowledgement-details?material_dispatch_id=${dispatch.id}`
             ).catch(err => ({ data: { data: [] } }))
           );
 
@@ -123,7 +123,7 @@ const Material = () => {
     if (!ackData) return;
 
     try {
-      const response = await axios.post("http://12345/site-incharge/acknowledge-material", {
+      const response = await axios.post("http://103.118.158.127/api/site-incharge/acknowledge-material", {
         material_dispatch_id: parseInt(dispatchId),
         overall_quantity: ackData.overall_quantity !== "" ? parseInt(ackData.overall_quantity) : null,
         remarks: ackData.remarks || null,
@@ -139,7 +139,7 @@ const Material = () => {
       
       // Refresh acknowledgement data for the specific dispatch
       const responseRefresh = await axios.get(
-        `http://12345/site-incharge/acknowledgement-details?material_dispatch_id=${dispatchId}`
+        `http://103.118.158.127/api/site-incharge/acknowledgement-details?material_dispatch_id=${dispatchId}`
       );
       setAckDetails(prev => ({
         ...prev,
@@ -222,7 +222,7 @@ const Material = () => {
     try {
       setSubmitting(true);
       
-      const response = await axios.post("http://12345/site-incharge/save-material-usage", {
+      const response = await axios.post("http://103.118.158.127/api/site-incharge/save-material-usage", {
         material_ack_id: parseInt(ackId),
         entry_date: selectedDate,
         overall_qty: parseInt(usageData.overall_qty),
@@ -307,7 +307,7 @@ const Material = () => {
         </View>
      
         
-          {dispatchData.length > 0 && (
+          {/* {dispatchData.length > 0 && (
             <TouchableOpacity
               onPress={() => setSummaryModalVisible(true)}
               className="px-4 py-3 mb-3 bg-[#1e7a6f] rounded-lg"
@@ -316,7 +316,7 @@ const Material = () => {
                 Acknowledgement status
               </Text>
             </TouchableOpacity>
-          )}
+          )} */}
 
           {/* <TouchableOpacity
             onPress={() => setDropdownsCollapsed(false)}

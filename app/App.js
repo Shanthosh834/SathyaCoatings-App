@@ -363,7 +363,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false}}>
           {/* Login First */}
 
-          {/* <Stack.Screen name="Login" component={LoginPage} /> */}
+           <Stack.Screen name="Login" component={LoginPage} /> 
           
           <Stack.Screen name="MainTabs" component={MainTabs}   options={{ gestureEnabled: false }}/>
            {/* Add deep screens here */}

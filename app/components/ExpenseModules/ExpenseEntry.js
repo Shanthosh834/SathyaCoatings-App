@@ -22,7 +22,7 @@ const { width } = Dimensions.get('window');
 
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: "http://12345",
+  BASE_URL: "http://103.118.158.127/api",
   TIMEOUT: 15000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
