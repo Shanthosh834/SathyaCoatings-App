@@ -15,12 +15,11 @@ import {
   MaterialUsageHistoryModal, 
   AcknowledgementSummaryModal, 
   SubOptionsModal 
-} from './Material';
-
+} from './MaterialHistory';
 // Import other module handlers
-import { handleExpensePress } from './Expense';
-import { handleWorkPress } from './Work';
-import { handleLabourPress } from './Labour';
+import { handleExpensePress } from './ExpenseHistory';
+import { handleWorkPress } from './WorkHistory';
+import { handleLabourPress } from './LabourHistory';
 
 // Selection Info Header Component
 const SelectionInfoHeader = ({ selection }) => (
