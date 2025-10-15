@@ -20,7 +20,7 @@ import Material from "../MaterialModules/MaterialDispatch";
 import ExpenseEntry from "../ExpenseModules/ExpenseEntry";
 import Work from "../WorkModules/Work";
 import { useSelection } from "../../SelectionContext";
-
+import * as SecureStore from 'expo-secure-store';
 const API_CONFIG = {
   BASE_URL: "http://10.252.71.28:5000",
   TIMEOUT: 15000,
@@ -265,12 +265,285 @@ const ModuleCard = ({ title, iconName, onPress }) => (
   </TouchableOpacity>
 );
 
+// function EntryDropdownScreen() {
+//   const navigation = useNavigation();
+//   const {setSelection} = useSelection();
+
+
+//   const [state, setState] = useState({
+//     companies: [],
+//     projects: [],
+//     sites: [],
+//     workDescs: [],
+//     selectedCompany: null,
+//     selectedProject: null,
+//     selectedSite: null,
+//     loading: false,
+//     refreshing: false,
+//     companyModalVisible: false,
+//     projectModalVisible: false,
+//     siteModalVisible: false,
+//     workDescModalVisible: false,
+//   });
+
+//   const updateState = useCallback((updates) => {
+//     setState(prevState => ({ ...prevState, ...updates }));
+//   }, []);
+
+//   const apiService = {
+//     async fetchCompanies() {
+//       const response = await apiClient.get('/project/companies');
+//       return response.data || [];
+//     },
+
+//     async fetchProjects() {
+//       const response = await apiClient.get('/project/projects-with-sites');
+//       return response.data || [];
+//     },
+
+//     async fetchWorkDescriptions(siteId) {
+//       const response = await apiClient.get(`/material/work-descriptions?site_id=${siteId}`);
+//       return response.data?.data || response.data || [];
+//     },
+//   };
+
+//   useEffect(() => {
+//     const fetchCompanies = async () => {
+//       try {
+//         updateState({ loading: true });
+//         const companies = await apiService.fetchCompanies();
+//         updateState({ companies });
+//       } catch (error) {
+//         const message = handleApiError(error, 'fetch companies');
+//         console.error(message);
+//       } finally {
+//         updateState({ loading: false });
+//       }
+//     };
+
+//     fetchCompanies();
+//   }, []);
+
+//   useEffect(() => {
+//     if (state.selectedCompany) {
+//       const fetchProjects = async () => {
+//         try {
+//           updateState({ loading: true });
+//           const allProjects = await apiService.fetchProjects();
+//           const filteredProjects = allProjects.filter(project => project.company_id === state.selectedCompany.company_id);
+//           updateState({ 
+//             projects: filteredProjects,
+//             selectedProject: null,
+//             sites: [],
+//             selectedSite: null,
+//             workDescs: [],
+//           });
+//         } catch (error) {
+//           const message = handleApiError(error, 'fetch projects');
+//           console.error(message);
+//         } finally {
+//           updateState({ loading: false });
+//         }
+//       };
+
+//       fetchProjects();
+//     } else {
+//       updateState({
+//         projects: [],
+//         selectedProject: null,
+//         sites: [],
+//         selectedSite: null,
+//         workDescs: [],
+//       });
+//     }
+//   }, [state.selectedCompany]);
+
+//   useEffect(() => {
+//     if (state.selectedProject) {
+//       const selectedProjectData = state.projects.find(
+//         project => project.project_id === state.selectedProject.project_id
+//       );
+      
+//       updateState({
+//         sites: selectedProjectData?.sites || [],
+//         selectedSite: null,
+//         workDescs: [],
+//       });
+//     }
+//   }, [state.selectedProject, state.projects]);
+
+//   useEffect(() => {
+//     if (state.selectedSite) {
+//       const fetchWorkDescs = async () => {
+//         try {
+//           updateState({ loading: true });
+//           const workDescs = await apiService.fetchWorkDescriptions(state.selectedSite.site_id);
+//           updateState({ workDescs });
+//         } catch (error) {
+//           const message = handleApiError(error, 'fetch work descriptions');
+//           console.error(message);
+//         } finally {
+//           updateState({ loading: false });
+//         }
+//       };
+
+//       fetchWorkDescs();
+//     }
+//   }, [state.selectedSite]);
+
+//   const handleRefresh = useCallback(async () => {
+//     try {
+//       updateState({ refreshing: true });
+//       const companies = await apiService.fetchCompanies();
+//       updateState({ companies });
+//     } catch (error) {
+//       const message = handleApiError(error, 'refresh data');
+//       console.error(message);
+//     } finally {
+//       updateState({ refreshing: false });
+//     }
+//   }, []);
+
+//   return (
+//     <View style={styles.container}>
+//       <ScrollView
+//         contentContainerStyle={styles.contentContainer}
+//         refreshControl={
+//           <RefreshControl refreshing={state.refreshing} onRefresh={handleRefresh} />
+//         }
+//         showsVerticalScrollIndicator={false}
+//       >
+//         <View style={styles.header}>
+//           <Text style={styles.title}>Work Selection</Text>
+//           <Text style={styles.subtitle}>Choose your project details</Text>
+//         </View>
+
+//         <View style={styles.dropdownSection}>
+//           <DropdownButton
+//             label="Company"
+//             value={state.selectedCompany}
+//             onPress={() => updateState({ companyModalVisible: true })}
+//             disabled={false}
+//             type="company"
+//           />
+
+//           <DropdownButton
+//             label="Project"
+//             value={state.selectedProject}
+//             onPress={() => updateState({ projectModalVisible: true })}
+//             disabled={!state.selectedCompany}
+//             type="project"
+//           />
+
+//           <DropdownButton
+//             label="Site"
+//             value={state.selectedSite}
+//             onPress={() => updateState({ siteModalVisible: true })}
+//             disabled={!state.selectedProject}
+//             type="site"
+//           />
+
+//           <DropdownButton
+//             label="Work Description"
+//             value={null}
+//             onPress={() => updateState({ workDescModalVisible: true })}
+//             disabled={!state.selectedSite}
+//             type="workDesc"
+//           />
+
+//           {state.loading && (
+//             <View style={styles.loadingContainer}>
+//               <ActivityIndicator size="small" color="#0f766e" />
+//               <Text style={styles.loadingText}>Loading data...</Text>
+//             </View>
+//           )}
+//         </View>
+//       </ScrollView>
+
+//       <DropdownModal
+//         visible={state.companyModalVisible}
+//         onClose={() => updateState({ companyModalVisible: false })}
+//         data={state.companies}
+//         title="Select Company"
+//         keyProp="company_id"
+//         type="company"
+//         onSelect={(item) => {
+//           updateState({ 
+//             selectedCompany: item, 
+//             companyModalVisible: false,
+//             projectModalVisible: true
+//           });
+//         }}
+//       />
+
+//       <DropdownModal
+//         visible={state.projectModalVisible}
+//         onClose={() => updateState({ projectModalVisible: false })}
+//         data={state.projects}
+//         title="Select Project"
+//         keyProp="project_id"
+//         type="project"
+//         onSelect={(item) => {
+//           updateState({ 
+//             selectedProject: item, 
+//             projectModalVisible: false,
+//             siteModalVisible: true
+//           });
+//         }}
+//       />
+
+//       <DropdownModal
+//         visible={state.siteModalVisible}
+//         onClose={() => updateState({ siteModalVisible: false })}
+//         data={state.sites}
+//         title="Select Site"
+//         keyProp="site_id"
+//         type="site"
+//         onSelect={(item) => {
+//           updateState({ 
+//             selectedSite: item, 
+//             siteModalVisible: false,
+//             workDescModalVisible: true
+//           });
+//         }}
+//       />
+
+//       <DropdownModal
+//         visible={state.workDescModalVisible}
+//         onClose={() => updateState({ workDescModalVisible: false })}
+//         data={state.workDescs}
+//         title="Select Work Description"
+//         keyProp="desc_id"
+//         type="workDesc"
+//         onSelect={(item) => {
+//           const selection = {
+//             company: state.selectedCompany,
+//             project: state.selectedProject,
+//             site: state.selectedSite,
+//             workDesc: item,
+//           };
+//           setSelection(selection);
+//           updateState({ workDescModalVisible: false });
+//           navigation.navigate("ModuleSelection", { selection });
+//         }}
+//       />
+//     </View>
+//   );
+// }
+
+// Add this at the top with other imports
+
+
 function EntryDropdownScreen() {
   const navigation = useNavigation();
   const {setSelection} = useSelection();
 
-
   const [state, setState] = useState({
+    userId: null,
+    assignments: [],
+    assignmentsLoaded: false,
+    isAssigned: false,
+    currentAssignment: null,
     companies: [],
     projects: [],
     sites: [],
@@ -278,6 +551,7 @@ function EntryDropdownScreen() {
     selectedCompany: null,
     selectedProject: null,
     selectedSite: null,
+    selectedWorkDesc: null,
     loading: false,
     refreshing: false,
     companyModalVisible: false,
@@ -289,8 +563,50 @@ function EntryDropdownScreen() {
   const updateState = useCallback((updates) => {
     setState(prevState => ({ ...prevState, ...updates }));
   }, []);
+ // Fetch userId from SecureStore on mount
+useEffect(() => {
+  const fetchUserId = async () => {
+    try {
+      // First try to get user_id directly
+      let userId = await SecureStore.getItemAsync('userId');
+      
+      // If not found, try to get from user object
+      if (!userId) {
+        const userJson = await SecureStore.getItemAsync('user');
+        if (userJson) {
+          const user = JSON.parse(userJson);
+          userId = user.user_id?.toString();
+          
+          // Optionally store it separately for next time
+          if (userId) {
+            await SecureStore.setItemAsync('user_id', userId);
+          }
+        }
+      }
+      
+      console.log('Fetched userId from SecureStore:', userId);
+      
+      if (userId) {
+        updateState({ userId });
+      } else {
+        console.error('No userId found in SecureStore');
+        Alert.alert('Error', 'User ID not found. Please login again.');
+      }
+    } catch (error) {
+      console.error('Error fetching userId from SecureStore:', error);
+      Alert.alert('Error', 'Failed to retrieve user information.');
+    }
+  };
+
+  fetchUserId();
+}, []);
 
   const apiService = {
+    async fetchAssignments(userId) {
+      const response = await apiClient.get(`/site-incharge/siteincharge-assigned-details/${userId}`);
+      return response.data?.data || [];
+    },
+
     async fetchCompanies() {
       const response = await apiClient.get('/project/companies');
       return response.data || [];
@@ -307,73 +623,124 @@ function EntryDropdownScreen() {
     },
   };
 
+  // Fetch assignments when userId is available
   useEffect(() => {
-    const fetchCompanies = async () => {
+    const fetchAssignments = async () => {
+      if (!state.userId) return;
+
       try {
         updateState({ loading: true });
-        const companies = await apiService.fetchCompanies();
-        updateState({ companies });
+        console.log('Fetching assignments for userId:', state.userId);
+        
+        const assignments = await apiService.fetchAssignments(state.userId);
+        console.log('Assignments fetched:', assignments);
+        
+        updateState({ 
+          assignments,
+          assignmentsLoaded: true,
+          isAssigned: assignments.length > 0
+        });
       } catch (error) {
-        const message = handleApiError(error, 'fetch companies');
+        const message = handleApiError(error, 'fetch assignments');
+        console.error(message);
+        Alert.alert('Error', message);
+        updateState({ 
+          assignments: [],
+          assignmentsLoaded: true,
+          isAssigned: false
+        });
+      } finally {
+        updateState({ loading: false });
+      }
+    };
+
+    fetchAssignments();
+  }, [state.userId]);
+
+  // Fetch companies and projects
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        updateState({ loading: true });
+        const [companies, projects] = await Promise.all([
+          apiService.fetchCompanies(),
+          apiService.fetchProjects()
+        ]);
+        updateState({ companies, projects });
+      } catch (error) {
+        const message = handleApiError(error, 'fetch initial data');
         console.error(message);
       } finally {
         updateState({ loading: false });
       }
     };
 
-    fetchCompanies();
+    fetchInitialData();
   }, []);
 
+  // Auto-populate dropdowns if user is assigned
   useEffect(() => {
-    if (state.selectedCompany) {
-      const fetchProjects = async () => {
-        try {
-          updateState({ loading: true });
-          const allProjects = await apiService.fetchProjects();
-          const filteredProjects = allProjects.filter(project => project.company_id === state.selectedCompany.company_id);
-          updateState({ 
-            projects: filteredProjects,
-            selectedProject: null,
-            sites: [],
-            selectedSite: null,
-            workDescs: [],
-          });
-        } catch (error) {
-          const message = handleApiError(error, 'fetch projects');
-          console.error(message);
-        } finally {
-          updateState({ loading: false });
-        }
-      };
-
-      fetchProjects();
-    } else {
-      updateState({
-        projects: [],
-        selectedProject: null,
-        sites: [],
-        selectedSite: null,
-        workDescs: [],
-      });
-    }
-  }, [state.selectedCompany]);
-
-  useEffect(() => {
-    if (state.selectedProject) {
-      const selectedProjectData = state.projects.find(
-        project => project.project_id === state.selectedProject.project_id
-      );
+    if (state.isAssigned && 
+        state.assignments.length > 0 && 
+        state.projects.length > 0 && 
+        state.companies.length > 0 && 
+        !state.selectedCompany) {
       
-      updateState({
-        sites: selectedProjectData?.sites || [],
-        selectedSite: null,
-        workDescs: [],
-      });
-    }
-  }, [state.selectedProject, state.projects]);
+      const assignment = state.assignments[0];
+      console.log('Auto-populating from assignment:', assignment);
 
+      // Find the project
+      const project = state.projects.find(p => p.project_id === assignment.pd_id);
+      console.log('Found project:', project);
+
+      if (project) {
+        // Find the company
+        const company = state.companies.find(c => c.company_id === project.company_id);
+        console.log('Found company:', company);
+
+        if (company) {
+          updateState({ selectedCompany: company });
+        }
+
+        updateState({ selectedProject: project });
+
+        // Set sites for this project
+        const projectSites = project.sites || [];
+        const site = projectSites.find(s => s.site_id === assignment.site_id);
+        console.log('Found site:', site);
+
+        if (site) {
+          updateState({ 
+            sites: projectSites,
+            selectedSite: site 
+          });
+        } else {
+          // If site not found in project sites, use assignment data
+          updateState({ 
+            sites: projectSites,
+            selectedSite: {
+              site_id: assignment.site_id,
+              site_name: assignment.site_name,
+              po_number: assignment.po_number
+            }
+          });
+        }
+
+        // Set work description from assignment
+        updateState({
+          selectedWorkDesc: {
+            desc_id: assignment.desc_id,
+            desc_name: assignment.desc_name
+          },
+          currentAssignment: assignment
+        });
+      }
+    }
+  }, [state.assignments, state.projects, state.companies, state.selectedCompany]);
+
+  // Fetch work descriptions when site is selected (only if not assigned)
   useEffect(() => {
-    if (state.selectedSite) {
+    if (state.selectedSite && !state.isAssigned) {
       const fetchWorkDescs = async () => {
         try {
           updateState({ loading: true });
@@ -389,21 +756,232 @@ function EntryDropdownScreen() {
 
       fetchWorkDescs();
     }
-  }, [state.selectedSite]);
+  }, [state.selectedSite, state.isAssigned]);
 
   const handleRefresh = useCallback(async () => {
     try {
       updateState({ refreshing: true });
-      const companies = await apiService.fetchCompanies();
-      updateState({ companies });
+      
+      if (state.userId) {
+        const [assignments, companies, projects] = await Promise.all([
+          apiService.fetchAssignments(state.userId),
+          apiService.fetchCompanies(),
+          apiService.fetchProjects()
+        ]);
+        
+        updateState({ 
+          assignments,
+          companies,
+          projects,
+          isAssigned: assignments.length > 0
+        });
+      }
     } catch (error) {
       const message = handleApiError(error, 'refresh data');
       console.error(message);
+      Alert.alert('Error', message);
     } finally {
       updateState({ refreshing: false });
     }
-  }, []);
+  }, [state.userId]);
 
+  // Show loading while checking assignments
+if (!state.assignmentsLoaded) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#0f766e" />
+        <Text style={styles.loadingText}>Loading assignments...</Text>
+      </View>
+    );
+  }
+
+  // Show "No site assigned" if user has no assignments
+   if (state.assignmentsLoaded && state.assignments.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Work Selection</Text>
+        </View>
+        <View style={styles.noAssignmentContainer}>
+          <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
+          <Text style={styles.noAssignmentText}>No site assigned</Text>
+          <Text style={styles.noAssignmentSubtext}>
+            Please contact your administrator to get site access.
+          </Text>
+          <TouchableOpacity 
+            style={styles.refreshButton}
+            onPress={handleRefresh}
+          >
+            <Text style={styles.refreshButtonText}>Refresh</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  // return (
+  //   <View style={styles.container}>
+  //     <ScrollView
+  //       contentContainerStyle={styles.contentContainer}
+  //       refreshControl={
+  //         <RefreshControl refreshing={state.refreshing} onRefresh={handleRefresh} />
+  //       }
+  //       showsVerticalScrollIndicator={false}
+  //     >
+  //       <View style={styles.header}>
+  //         <Text style={styles.title}>Work Selection</Text>
+  //         <Text style={styles.subtitle}>Choose your project details</Text>
+  //       </View>
+
+  //       {/* Show assignment period info */}
+  //       {state.currentAssignment && (
+  //         <View style={styles.assignmentInfo}>
+  //           <Ionicons name="information-circle" size={20} color="#0f766e" />
+  //           <View style={styles.assignmentInfoText}>
+  //             <Text style={styles.assignmentInfoLabel}>Assigned Period:</Text>
+  //             <Text style={styles.assignmentInfoValue}>
+  //               {new Date(state.currentAssignment.from_date).toLocaleDateString()} to {new Date(state.currentAssignment.to_date).toLocaleDateString()}
+  //             </Text>
+  //           </View>
+  //         </View>
+  //       )}
+
+  //       <View style={styles.dropdownSection}>
+  //         <DropdownButton
+  //           label="Company"
+  //           value={state.selectedCompany}
+  //           onPress={() => updateState({ companyModalVisible: true })}
+  //           disabled={state.isAssigned}
+  //           type="company"
+  //         />
+
+  //         <DropdownButton
+  //           label="Project"
+  //           value={state.selectedProject}
+  //           onPress={() => updateState({ projectModalVisible: true })}
+  //           // disabled={state.isAssigned}
+  //           type="project"
+  //         />
+
+  //         <DropdownButton
+  //           label="Site"
+  //           value={state.selectedSite}
+  //           onPress={() => updateState({ siteModalVisible: true })}
+  //           // disabled={state.isAssigned}
+  //           type="site"
+  //         />
+
+  //         <DropdownButton
+  //           label="Work Description"
+  //           value={state.selectedWorkDesc}
+  //           onPress={() => updateState({ workDescModalVisible: true })}
+  //           // disabled={state.isAssigned}
+  //           type="workDesc"
+  //         />
+
+  //         {state.loading && (
+  //           <View style={styles.loadingContainer}>
+  //             <ActivityIndicator size="small" color="#0f766e" />
+  //             <Text style={styles.loadingText}>Loading data...</Text>
+  //           </View>
+  //         )}
+
+  //         {/* Navigate button - only show when all selections are made */}
+  //         {state.selectedCompany && state.selectedProject && state.selectedSite && state.selectedWorkDesc && (
+  //           <TouchableOpacity
+  //             style={styles.continueButton}
+  //             onPress={() => {
+  //               const selection = {
+  //                 company: state.selectedCompany,
+  //                 project: state.selectedProject,
+  //                 site: state.selectedSite,
+  //                 workDesc: state.selectedWorkDesc,
+  //               };
+  //               setSelection(selection);
+  //               navigation.navigate("ModuleSelection", { selection, userId: state.userId });
+  //             }}
+  //           >
+  //             <Text style={styles.continueButtonText}>Continue to Modules</Text>
+  //             <Ionicons name="arrow-forward" size={20} color="white" />
+  //           </TouchableOpacity>
+  //         )}
+  //       </View>
+  //     </ScrollView>
+
+  //     {/* OLD MODAL STYLE - Auto-opening in sequence */}
+  //     <DropdownModal
+  //       visible={state.companyModalVisible}
+  //       onClose={() => updateState({ companyModalVisible: false })}
+  //       data={state.companies}
+  //       title="Select Company"
+  //       keyProp="company_id"
+  //       type="company"
+  //       onSelect={(item) => {
+  //         updateState({ 
+  //           selectedCompany: item, 
+  //           companyModalVisible: false,
+  //           projectModalVisible: !state.isAssigned // Auto-open next modal if not assigned
+  //         });
+  //       }}
+  //     />
+
+  //     <DropdownModal
+  //       visible={state.projectModalVisible}
+  //       onClose={() => updateState({ projectModalVisible: false })}
+  //       data={state.projects.filter(p => p.company_id === state.selectedCompany?.company_id)}
+  //       title="Select Project"
+  //       keyProp="project_id"
+  //       type="project"
+  //       onSelect={(item) => {
+  //         updateState({ 
+  //           selectedProject: item,
+  //           sites: item.sites || [],
+  //           projectModalVisible: false,
+  //           siteModalVisible: !state.isAssigned // Auto-open next modal if not assigned
+  //         });
+  //       }}
+  //     />
+
+  //     <DropdownModal
+  //       visible={state.siteModalVisible}
+  //       onClose={() => updateState({ siteModalVisible: false })}
+  //       data={state.sites}
+  //       title="Select Site"
+  //       keyProp="site_id"
+  //       type="site"
+  //       onSelect={(item) => {
+  //         updateState({ 
+  //           selectedSite: item,
+  //           siteModalVisible: false,
+  //           workDescModalVisible: !state.isAssigned // Auto-open next modal if not assigned
+  //         });
+  //       }}
+  //     />
+
+  //     <DropdownModal
+  //       visible={state.workDescModalVisible}
+  //       onClose={() => updateState({ workDescModalVisible: false })}
+  //       data={state.workDescs}
+  //       title="Select Work Description"
+  //       keyProp="desc_id"
+  //       type="workDesc"
+  //       onSelect={(item) => {
+  //         const selection = {
+  //           company: state.selectedCompany,
+  //           project: state.selectedProject,
+  //           site: state.selectedSite,
+  //           workDesc: item,
+  //         };
+  //         setSelection(selection);
+  //         updateState({ 
+  //           selectedWorkDesc: item,
+  //           workDescModalVisible: false 
+  //         });
+  //         navigation.navigate("ModuleSelection", { selection, userId: state.userId });
+  //       }}
+  //     />
+  //   </View>
+  // );
   return (
     <View style={styles.container}>
       <ScrollView
@@ -418,12 +996,25 @@ function EntryDropdownScreen() {
           <Text style={styles.subtitle}>Choose your project details</Text>
         </View>
 
+        {/* Show assignment period info */}
+        {state.currentAssignment && (
+          <View style={styles.assignmentInfo}>
+            <Ionicons name="information-circle" size={20} color="#0f766e" />
+            <View style={styles.assignmentInfoText}>
+              <Text style={styles.assignmentInfoLabel}>Assigned Period:</Text>
+              <Text style={styles.assignmentInfoValue}>
+                {new Date(state.currentAssignment.from_date).toLocaleDateString()} to {new Date(state.currentAssignment.to_date).toLocaleDateString()}
+              </Text>
+            </View>
+          </View>
+        )}
+
         <View style={styles.dropdownSection}>
           <DropdownButton
             label="Company"
             value={state.selectedCompany}
             onPress={() => updateState({ companyModalVisible: true })}
-            disabled={false}
+            disabled={state.isAssigned}
             type="company"
           />
 
@@ -431,7 +1022,7 @@ function EntryDropdownScreen() {
             label="Project"
             value={state.selectedProject}
             onPress={() => updateState({ projectModalVisible: true })}
-            disabled={!state.selectedCompany}
+            // disabled={!state.selectedCompany || state.isAssigned}
             type="project"
           />
 
@@ -439,15 +1030,15 @@ function EntryDropdownScreen() {
             label="Site"
             value={state.selectedSite}
             onPress={() => updateState({ siteModalVisible: true })}
-            disabled={!state.selectedProject}
+            // disabled={!state.selectedProject || state.isAssigned}
             type="site"
           />
 
           <DropdownButton
             label="Work Description"
-            value={null}
+            value={state.selectedWorkDesc}
             onPress={() => updateState({ workDescModalVisible: true })}
-            disabled={!state.selectedSite}
+            disabled={!state.selectedSite || state.isAssigned}
             type="workDesc"
           />
 
@@ -457,9 +1048,30 @@ function EntryDropdownScreen() {
               <Text style={styles.loadingText}>Loading data...</Text>
             </View>
           )}
+
+          {/* Navigate button - only show when all selections are made */}
+          {state.selectedCompany && state.selectedProject && state.selectedSite && state.selectedWorkDesc && (
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={() => {
+                const selection = {
+                  company: state.selectedCompany,
+                  project: state.selectedProject,
+                  site: state.selectedSite,
+                  workDesc: state.selectedWorkDesc,
+                };
+                setSelection(selection);
+                navigation.navigate("ModuleSelection", { selection, userId: state.userId });
+              }}
+            >
+              <Text style={styles.continueButtonText}>Continue to Modules</Text>
+              <Ionicons name="arrow-forward" size={20} color="white" />
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
 
+      {/* MANUAL MODAL STYLE - Only opens when clicked */}
       <DropdownModal
         visible={state.companyModalVisible}
         onClose={() => updateState({ companyModalVisible: false })}
@@ -470,8 +1082,8 @@ function EntryDropdownScreen() {
         onSelect={(item) => {
           updateState({ 
             selectedCompany: item, 
-            companyModalVisible: false,
-            projectModalVisible: true
+            companyModalVisible: false
+            // Removed auto-open logic
           });
         }}
       />
@@ -479,15 +1091,16 @@ function EntryDropdownScreen() {
       <DropdownModal
         visible={state.projectModalVisible}
         onClose={() => updateState({ projectModalVisible: false })}
-        data={state.projects}
+        data={state.projects.filter(p => p.company_id === state.selectedCompany?.company_id)}
         title="Select Project"
         keyProp="project_id"
         type="project"
         onSelect={(item) => {
           updateState({ 
-            selectedProject: item, 
-            projectModalVisible: false,
-            siteModalVisible: true
+            selectedProject: item,
+            sites: item.sites || [],
+            projectModalVisible: false
+            // Removed auto-open logic
           });
         }}
       />
@@ -501,9 +1114,9 @@ function EntryDropdownScreen() {
         type="site"
         onSelect={(item) => {
           updateState({ 
-            selectedSite: item, 
-            siteModalVisible: false,
-            workDescModalVisible: true
+            selectedSite: item,
+            siteModalVisible: false
+            // Removed auto-open logic
           });
         }}
       />
@@ -516,6 +1129,12 @@ function EntryDropdownScreen() {
         keyProp="desc_id"
         type="workDesc"
         onSelect={(item) => {
+          updateState({ 
+            selectedWorkDesc: item,
+            workDescModalVisible: false 
+          });
+          
+          // Navigate to modules after work desc selection
           const selection = {
             company: state.selectedCompany,
             project: state.selectedProject,
@@ -523,14 +1142,12 @@ function EntryDropdownScreen() {
             workDesc: item,
           };
           setSelection(selection);
-          updateState({ workDescModalVisible: false });
-          navigation.navigate("ModuleSelection", { selection });
+          navigation.navigate("ModuleSelection", { selection, userId: state.userId });
         }}
       />
     </View>
   );
 }
-
 function ModuleSelectionScreen() {
   const route = useRoute();
   const navigation = useNavigation();
@@ -1115,4 +1732,78 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     backgroundColor: "white",
   },
+  centerContent: {
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+noAssignmentContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 32,
+},
+noAssignmentText: {
+  fontSize: 20,
+  fontWeight: '600',
+  color: '#ef4444',
+  marginTop: 16,
+},
+noAssignmentSubtext: {
+  fontSize: 14,
+  color: '#6b7280',
+  textAlign: 'center',
+  marginTop: 8,
+},
+refreshButton: {
+  marginTop: 24,
+  backgroundColor: '#0f766e',
+  paddingHorizontal: 24,
+  paddingVertical: 12,
+  borderRadius: 8,
+},
+refreshButtonText: {
+  color: 'white',
+  fontWeight: '600',
+  fontSize: 16,
+},
+assignmentInfo: {
+  flexDirection: 'row',
+  backgroundColor: '#ecfdf5',
+  padding: 12,
+  borderRadius: 8,
+  marginHorizontal: 16,
+  marginBottom: 16,
+  borderLeftWidth: 4,
+  borderLeftColor: '#0f766e',
+  alignItems: 'center',
+},
+assignmentInfoText: {
+  marginLeft: 8,
+  flex: 1,
+},
+assignmentInfoLabel: {
+  fontSize: 12,
+  fontWeight: '600',
+  color: '#064e3b',
+},
+assignmentInfoValue: {
+  fontSize: 13,
+  color: '#065f46',
+  marginTop: 2,
+},
+continueButton: {
+  flexDirection: 'row',
+  backgroundColor: '#0f766e',
+  padding: 16,
+  borderRadius: 8,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 16,
+},
+continueButtonText: {
+  color: 'white',
+  fontSize: 16,
+  fontWeight: '600',
+  marginRight: 8,
+},
 });
