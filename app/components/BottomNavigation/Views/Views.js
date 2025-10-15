@@ -9,7 +9,11 @@ import {
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSelection } from '../../../SelectionContext';
-
+import { 
+  LabourSubOptionsModal,
+  LabourAssignmentHistoryModal,
+  LabourAttendanceHistoryModal 
+} from './LabourHistory'
 // Import Material components
 import { 
   MaterialUsageHistoryModal, 
@@ -17,8 +21,8 @@ import {
   SubOptionsModal 
 } from './MaterialHistory';
 // Import other module handlers
-import { handleExpensePress } from './ExpenseHistory';
-import { handleWorkPress } from './WorkHistory';
+import ExpenseHistory, { handleExpensePress } from './ExpenseHistory';
+import WorkHistory, { handleWorkPress } from './WorkHistory';
 import { handleLabourPress } from './LabourHistory';
 
 // Selection Info Header Component
@@ -78,7 +82,13 @@ function ViewsMainScreen() {
   const [subOptionsVisible, setSubOptionsVisible] = useState(false);
   const [usageModalVisible, setUsageModalVisible] = useState(false);
   const [acknowledgementModalVisible, setAcknowledgementModalVisible] = useState(false);
+  const [workModalVisible, setWorkModalVisible] = useState(false); // ADD THIS
+  const [expenseModalVisible,setExpenseModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const [showLabourOptions, setShowLabourOptions] = useState(false);
+const [showAssignment, setShowAssignment] = useState(false);
+const [showAttendance, setShowAttendance] = useState(false);
 
   const handleMaterialCardPress = useCallback(() => {
     setSubOptionsVisible(true);
@@ -98,6 +108,25 @@ function ViewsMainScreen() {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     setRefreshing(false);
+  }, []);
+
+  // ADD THIS - Handle work card press
+  const handleWorkPress = useCallback(() => {
+    console.log("🚀 Work card pressed");
+    setWorkModalVisible(true);
+  }, []);
+  
+  
+  const handleExpensePress = useCallback(() => {
+    console.log("🚀 Expense card pressed");
+    setExpenseModalVisible(true);
+    
+  }, []);
+  
+  const handleLabourPress = useCallback(() => {
+    console.log("🚀 Labour card pressed");
+    setShowLabourOptions(true);
+    
   }, []);
 
   return (
@@ -162,6 +191,45 @@ function ViewsMainScreen() {
         onClose={() => setAcknowledgementModalVisible(false)}
         selection={selection}
       />
+      
+      {/* FIXED - Use correct state variable */}
+      <WorkHistory 
+        visible={workModalVisible}
+        onClose={() => setWorkModalVisible(false)}
+        selection={selection}
+      />
+
+
+
+      <ExpenseHistory 
+        visible={expenseModalVisible}
+        onClose={() => setExpenseModalVisible(false)}
+        selection={selection}/>
+
+        <LabourSubOptionsModal 
+  visible={showLabourOptions}
+  onClose={() => setShowLabourOptions(false)}
+  onSelectAssignment={() => {
+    setShowLabourOptions(false);
+    setShowAssignment(true);
+  }}
+  onSelectAttendance={() => {
+    setShowLabourOptions(false);
+    setShowAttendance(true);
+  }}
+/>
+
+  <LabourAssignmentHistoryModal 
+  visible={showAssignment}
+  onClose={() => setShowAssignment(false)}
+  selection={true}
+/>
+
+<LabourAttendanceHistoryModal 
+  visible={showAttendance}
+  onClose={() => setShowAttendance(false)}
+  selection={true}
+/>
     </View>
   );
 }

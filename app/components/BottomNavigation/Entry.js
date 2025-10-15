@@ -22,7 +22,7 @@ import Work from "../WorkModules/Work";
 import { useSelection } from "../../SelectionContext";
 
 const API_CONFIG = {
-  BASE_URL: "http://103.118.158.127/api",
+  BASE_URL: "http://10.252.71.28:5000",
   TIMEOUT: 15000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
@@ -268,6 +268,7 @@ const ModuleCard = ({ title, iconName, onPress }) => (
 function EntryDropdownScreen() {
   const navigation = useNavigation();
   const {setSelection} = useSelection();
+
 
   const [state, setState] = useState({
     companies: [],

@@ -176,7 +176,7 @@ export const MaterialUsageHistoryModal = ({ visible, onClose, selection }) => {
       console.log("Fetching usage history for userId:", userId);
 
       // Fetch usage history using the same endpoint as website
-      const usageUrl = `http://103.118.158.127/api/site-incharge/material-usage-by-incharge/${userId}`;
+      const usageUrl = `http://10.252.71.28:5000/site-incharge/material-usage-by-incharge/${userId}`;
       
       console.log("Making request to:", usageUrl);
       
@@ -425,7 +425,7 @@ export const AcknowledgementSummaryModal = ({ visible, onClose, selection }) => 
       console.log("Fetching acknowledgement history for userId:", userId);
 
       // Fetch acknowledgement history using the same endpoint as website
-      const ackUrl = `http://103.118.158.127/api/site-incharge/acknowledgements-by-incharge/${userId}`;
+      const ackUrl = `http://10.252.71.28:5000/site-incharge/acknowledgements-by-incharge/${userId}`;
       
       console.log("Making request to:", ackUrl);
       

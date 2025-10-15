@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://103.118.158.127/api";
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://10.252.71.28:5000";
 
 export async function apiFetch(path, options = {}) {
   const url = path.startsWith("http") ? path : `${API_BASE_URL}${path}`;

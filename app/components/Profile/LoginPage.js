@@ -33,7 +33,7 @@ const LoginPage = () => {
     try {
       // --- LOGIN REQUEST ---
       const response = await axios.post(
-        "http://103.118.158.127/api/auth/login",
+        "http://10.252.71.28:5000/auth/login",
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -47,7 +47,7 @@ const LoginPage = () => {
 
       // --- VERIFY TOKEN ---
       const verifyResponse = await axios.post(
-        "http://103.118.158.127/api/auth/verify-token",
+        "http://10.252.71.28:5000/auth/verify-token",
         { token },
         { headers: { "Content-Type": "application/json" } }
       );
